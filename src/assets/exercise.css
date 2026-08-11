@@ -117,6 +117,21 @@ input {
 .cool {
   background-color: #74b9ff;
 }
+
+.recommend-rain {
+  background-color: #2ba9d2;
+}
+.recommend-wind {
+  background-color: #3fceb2;
+}
+.recommend-overhit {
+  background-color: #d91010;
+}
+
+.recommend {
+  background-color: #ffa72cfa;
+}
+
 .btn-detail {
   position: absolute;
   right: 12px;
@@ -131,4 +146,27 @@ input {
   color: #2e7d32;
   font-weight: bold;
   border-radius: 6px;
+}
+
+.list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.list-header h3 {
+  margin: 0;
+}
+
+.danger-filter {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.danger-filter input {
+  margin: 0;
 }
