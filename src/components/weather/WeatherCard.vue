@@ -1,7 +1,8 @@
 <script setup>
 import WeatherBadge from './WeatherBadge.vue'
+import { useTemperature } from '@/composables/useTemperature'
+import { isDangerWeather } from '@/domain/weatherRules'
 
-// 1. 상위로부터 단방향 주입받을 객체 데이터 규격 검수 (매크로)
 defineProps({
   cityItem: {
     type: Object,
@@ -9,20 +10,29 @@ defineProps({
   },
 })
 
-// 2. 상위로 송신할 두 가지 경로의 커스텀 이벤트 식별자 등록 (매크로)
-const emit = defineEmits(['select-card', 'click-detail'])
+// 상세보기 = cityId 하나만 전달한다. 카드 전체 클릭이 곧 상세 이동이다 (service_architecture.md 5.3, vue_architecture.md 7.3).
+const emit = defineEmits(['request-detail'])
+
+const { formatTemp, unitSymbol } = useTemperature()
 </script>
 
 <template>
-  <div class="weather-card" @click="emit('select-card', `${cityItem.name}이 선택되었습니다.`)">
-    <h4>{{ cityItem.name }} ({{ cityItem.status }})</h4>
-    <p>현재 기온: {{ cityItem.temp }}°C</p>
-    <p>습도: {{ cityItem.humidity }}%</p>
-    <p>바람: {{ cityItem.windSpeed }}m/s</p>
+  <div class="weather-card" :class="{ danger: isDangerWeather(cityItem) }" @click="emit('request-detail', cityItem.id)">
+    <div v-if="isDangerWeather(cityItem)" class="danger-flag">⚠ 위험</div>
 
-    <WeatherBadge :status="cityItem.status" :temp="cityItem.temp" :humidity="cityItem.humidity" :wind-speed="cityItem.windSpeed" />
+    <div class="card-head">
+      <h4 class="city-name">{{ cityItem.name }}</h4>
+      <span class="status-label">{{ cityItem.status }}</span>
+    </div>
 
-    <button class="btn-detail" @click.stop="emit('click-detail', cityItem.name, cityItem.status, cityItem.humidity, cityItem.windSpeed, cityItem.id)">상세보기</button>
+    <p class="temp-value">{{ formatTemp(cityItem.temp) }}{{ unitSymbol }}</p>
+
+    <div class="card-metrics">
+      <span><span class="metric-label">습도</span> {{ cityItem.humidity }}%</span>
+      <span><span class="metric-label">바람</span> {{ cityItem.windSpeed }}m/s</span>
+    </div>
+
+    <WeatherBadge :city-item="cityItem" />
   </div>
 </template>
 
@@ -36,11 +46,40 @@ const emit = defineEmits(['select-card', 'click-detail'])
   cursor: pointer;
   position: relative;
 }
-.btn-detail {
-  position: absolute;
-  right: 12px;
-  top: 15px;
-  padding: 6px 10px;
-  cursor: pointer;
+.weather-card.danger {
+  border-left: 4px solid #d91010;
+}
+.danger-flag {
+  font-size: 12px;
+  color: #d91010;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+.card-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+.city-name {
+  font-weight: bold;
+  margin: 0;
+}
+.status-label {
+  color: #6c757d;
+}
+.temp-value {
+  font-size: 28px;
+  font-weight: bold;
+  margin: 4px 0;
+}
+.card-metrics {
+  display: flex;
+  gap: 16px;
+  color: #6c757d;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+.metric-label {
+  color: #adb5bd;
 }
 </style>

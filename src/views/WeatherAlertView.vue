@@ -1,21 +1,19 @@
 <script setup>
-import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 
-import BaseDashboardCard from '../components/exercise/BaseDashboardCard.vue'
-import WeatherList from '../components/exercise/WeatherList.vue'
-import StatusBar from '../components/exercise/StatusBar.vue'
-import { weatherMockList, isDangerWeather } from '../components/exercise/weatherMockData'
+import BaseDashboardCard from '../components/common/BaseDashboardCard.vue'
+import WeatherList from '../components/weather/WeatherList.vue'
+import StatusBar from '../components/common/StatusBar.vue'
+import { useWeatherStore } from '@/stores/weatherStore'
+import { DANGER_WIND_SPEED, DANGER_TEMP } from '@/domain/weatherRules'
 
 const router = useRouter()
+const weatherStore = useWeatherStore()
 
-const selectedCityInfo = ref('카드를 클릭하거나 상세보기를 눌러보세요.')
+weatherStore.loadCityWeather()
 
-// 폭우 / 강풍(60m/s 이상) / 폭염(30도 이상) 조건에 해당하는 지역만 별도 페이지로 분리
-const dangerWeatherList = computed(() => weatherMockList.filter(isDangerWeather))
-
-const handleDetailJump = (id) => {
-  router.push(`/weather/${id}`)
+const handleDetailRequest = (cityId) => {
+  router.push({ name: 'WeatherDetail', params: { cityId } })
 }
 </script>
 
@@ -23,25 +21,17 @@ const handleDetailJump = (id) => {
   <div class="dashboard-wrapper">
     <BaseDashboardCard>
       <h3>⚠️ 위험 날씨 경보</h3>
-      <p class="alert-desc">폭우 · 강풍(60m/s 이상) · 폭염(30도 이상) 지역만 모아 보여줍니다.</p>
-      <WeatherList
-        :list="dangerWeatherList"
-        @select-card="(msg) => (selectedCityInfo = msg)"
-        @click-detail="(name, status, humidity, windSpeed, id) => handleDetailJump(id)"
-      />
+      <p class="alert-desc">폭우 · 강풍({{ DANGER_WIND_SPEED }}m/s 이상) · 폭염({{ DANGER_TEMP }}도 이상) 지역만 모아 보여줍니다.</p>
+      <WeatherList :list="weatherStore.dangerCityList" @request-detail="handleDetailRequest" />
     </BaseDashboardCard>
 
-    <StatusBar :message="selectedCityInfo" />
+    <StatusBar message="카드를 클릭하면 상세 날씨로 이동합니다." />
   </div>
 </template>
 
 <style scoped>
-.dashboard-wrapper {
-  width: 600px;
-  margin: 0 auto;
-}
 .alert-desc {
-  color: #c0392b;
+  color: #6c757d;
   font-size: 14px;
   margin: 4px 0 12px;
 }

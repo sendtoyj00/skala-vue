@@ -1,85 +1,111 @@
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onBeforeUnmount } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
-import BaseDashboardCard from '../components/exercise/BaseDashboardCard.vue'
-import SearchBar from '../components/exercise/SearchBar.vue'
-import WeatherList from '../components/exercise/WeatherList.vue'
-import StatusBar from '../components/exercise/StatusBar.vue'
-import { weatherMockList } from '../components/exercise/weatherMockData'
+import BaseDashboardCard from '../components/common/BaseDashboardCard.vue'
+import SearchBar from '../components/common/SearchBar.vue'
+import WeatherList from '../components/weather/WeatherList.vue'
+import StatusBar from '../components/common/StatusBar.vue'
+import { useWeatherStore } from '@/stores/weatherStore'
+import { isDangerWeather } from '@/domain/weatherRules'
 
 const router = useRouter()
 const route = useRoute()
+const weatherStore = useWeatherStore()
 
-const weatherList = ref(weatherMockList)
+weatherStore.loadCityWeather()
 
-const searchQuery = ref('')
-const statusQuery = ref('')
-const selectedCityInfo = ref('카드를 클릭하거나 검색해 보세요.')
+// 검색어는 로컬 ref가 원본이고 URL은 사본이다. 초기값은 setup 시점에 route.query에서 한 번만 읽는다
+// (vue_architecture.md 8.4 — onMounted가 아니라 setup 본문에서, KeepAlive 불필요).
+const searchQuery = ref(typeof route.query.search === 'string' ? route.query.search : '')
+const statusQuery = ref(typeof route.query.status === 'string' ? route.query.status : '')
 
-// 초기 마운트 시 주소창의 쿼리(?search=&status=) 스트링 읽어서 상태 복원 (KeepAlive를 적용해야만 동작함)
-onMounted(() => {
-  if (route.query.search) {
-    searchQuery.value = route.query.search
-  }
-  if (route.query.status) {
-    statusQuery.value = route.query.status
-  }
-})
-
-// 타이핑될 때마다 주소창의 쿼리 스트링 값을 실시간 푸시 개편 (현재 큰 의미없음)
+// 타이핑이 멎은 뒤 300ms 후에만 URL에 반영한다. replace를 써서 히스토리를 쌓지 않는다.
+let debounceTimer = null
 watch([searchQuery, statusQuery], ([newSearch, newStatus]) => {
-  router.push({
-    path: route.path,
-    query: { search: newSearch || undefined, status: newStatus || undefined },
-  })
+  clearTimeout(debounceTimer)
+  debounceTimer = setTimeout(() => {
+    router.replace({
+      path: route.path,
+      query: { search: newSearch || undefined, status: newStatus || undefined },
+    })
+  }, 300)
 })
+onBeforeUnmount(() => clearTimeout(debounceTimer))
 
+// 위험 지역이 목록 상단에 오도록 정렬한다(design_architecture.md 3.1 원칙 5).
 const filteredWeatherList = computed(() => {
   const cityQuery = searchQuery.value.trim()
   const weatherQuery = statusQuery.value.trim()
 
-  return weatherList.value.filter((item) => {
-    const cityMatch = !cityQuery || item.name.includes(cityQuery)
-    const weatherMatch = !weatherQuery || item.status.includes(weatherQuery)
-    return cityMatch && weatherMatch
-  })
+  return weatherStore.cities
+    .filter((item) => {
+      const cityMatch = !cityQuery || item.name.includes(cityQuery)
+      const weatherMatch = !weatherQuery || item.status.includes(weatherQuery)
+      return cityMatch && weatherMatch
+    })
+    .slice()
+    .sort((a, b) => Number(isDangerWeather(b)) - Number(isDangerWeather(a)))
 })
 
-// 자식 카드 컴포넌트의 상세보기 신호를 받으면 해당 ID 주소로 라우터 점프 실행
-const handleDetailJump = (id) => {
-  router.push(`/weather/${id}`)
+const resultCount = computed(() => filteredWeatherList.value.length)
+
+const handleClearSearch = () => {
+  searchQuery.value = ''
+  statusQuery.value = ''
+}
+
+// 카드 클릭 시 cityId 하나만 받아 바로 상세로 이동한다(service_architecture.md 5.3 결정 1).
+const handleDetailRequest = (cityId) => {
+  router.push({ name: 'WeatherDetail', params: { cityId } })
 }
 </script>
 
 <template>
   <div class="dashboard-wrapper">
-    <BaseDashboardCard>
-      <SearchBar :current-query="searchQuery" @update-query="(val) => (searchQuery = val)" />
-    </BaseDashboardCard>
+    <div class="search-row">
+      <BaseDashboardCard>
+        <SearchBar :current-query="searchQuery" @update-query="(val) => (searchQuery = val)" />
+      </BaseDashboardCard>
 
-    <BaseDashboardCard>
-      <SearchBar
-        label="🌤️ 날씨 상태 검색"
-        placeholder="예: 맑음, 비, 폭우"
-        hint-label="검색 중인 날씨:"
-        :current-query="statusQuery"
-        @update-query="(val) => (statusQuery = val)"
-      />
-    </BaseDashboardCard>
+      <BaseDashboardCard>
+        <SearchBar
+          label="🌤️ 날씨 상태 검색"
+          placeholder="예: 맑음, 비, 폭우"
+          hint-label="검색 중인 날씨:"
+          :current-query="statusQuery"
+          @update-query="(val) => (statusQuery = val)"
+        />
+      </BaseDashboardCard>
+    </div>
+
+    <p class="result-count">8곳 중 {{ resultCount }}곳 표시</p>
 
     <BaseDashboardCard>
       <h3>🏙️ 지역별 날씨 현황</h3>
-      <WeatherList :list="filteredWeatherList" @select-card="(msg) => (selectedCityInfo = msg)" @click-detail="(name, status, humidity, windSpeed, id) => handleDetailJump(id)" />
+      <WeatherList :list="filteredWeatherList" @request-detail="handleDetailRequest" />
+      <button v-if="resultCount === 0" class="reset-btn" @click="handleClearSearch">검색 조건 초기화</button>
     </BaseDashboardCard>
 
-    <StatusBar :message="selectedCityInfo" />
+    <StatusBar message="카드를 클릭하면 상세 날씨로 이동합니다." />
   </div>
 </template>
 
 <style scoped>
-.dashboard-wrapper {
-  width: 600px;
-  margin: 0 auto;
+.search-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.result-count {
+  color: #6c757d;
+  font-size: 14px;
+  margin: 4px 0 12px;
+}
+.reset-btn {
+  display: block;
+  margin: 8px auto 0;
+  padding: 6px 12px;
+  cursor: pointer;
 }
 </style>

@@ -1,6 +1,6 @@
 <script setup>
 // 1. 정의한 카운터 스토어 플러그인 import
-import { useCounterStore } from '@/stores/counter.js'
+import { useCounterStore } from '@/practices/counter.js'
 
 // 2. 인스턴스 가동 (전역 저장소 포인터 확보)
 const counterStore = useCounterStore()

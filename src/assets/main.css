@@ -21,15 +21,5 @@ a,
   }
 }
 
-@media (min-width: 1024px) {
-  body {
-    display: flex;
-    place-items: center;
-  }
-
-  #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 2rem;
-  }
-}
+/* 스캐폴딩 기본값이던 2열 그리드를 제거했다. 앱 셸이 RouterView 1개인 단일 흐름 레이아웃이므로
+   콘텐츠 성격과 무관하게 화면을 반으로 쪼개던 규칙은 불필요하다 (design_architecture.md 3.2, 7.3). */

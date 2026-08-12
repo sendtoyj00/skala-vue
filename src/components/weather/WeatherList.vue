@@ -9,13 +9,21 @@ defineProps({
   },
 })
 
-defineEmits(['select-card', 'click-detail'])
+defineEmits(['request-detail'])
 </script>
 
 <template>
   <div>
-    <WeatherCard v-for="item in list" :key="item.id" :city-item="item" @select-card="$emit('select-card', $event)" @click-detail="(...args) => $emit('click-detail', ...args)" />
+    <WeatherCard v-for="item in list" :key="item.id" :city-item="item" @request-detail="$emit('request-detail', $event)" />
 
-    <p v-if="list.length === 0" style="text-align: center; color: #e74c3c; padding: 10px 0">😭 조건에 맞는 결과가 없습니다.</p>
+    <p v-if="list.length === 0" class="empty-state">😭 조건에 맞는 결과가 없습니다.</p>
   </div>
 </template>
+
+<style scoped>
+.empty-state {
+  text-align: center;
+  color: #6c757d;
+  padding: 10px 0;
+}
+</style>

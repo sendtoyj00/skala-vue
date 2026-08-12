@@ -77,9 +77,11 @@ h1 {
   padding-bottom: 2px;
 }
 
-/* 과제페이지 스타일 - Component 분리 후 각 페이지별로 이동 */
+/* 대시보드 계열 화면 공통 폭. 4개 파일에 중복 선언되어 있던 것을 여기 한 곳으로 통합했다
+   (design_architecture.md 3.1 원칙 6 — 폭은 max-width + width:100%로 정의, 고정폭 금지). */
 .dashboard-wrapper {
-  width: 600px;
+  max-width: 640px;
+  width: 100%;
   margin: 0 auto;
 }
 .search-box,

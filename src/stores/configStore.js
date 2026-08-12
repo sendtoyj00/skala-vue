@@ -11,6 +11,10 @@ export const useConfigStore = defineStore('config', () => {
     return unit.value === 'celsius' ? '℃' : '℉'
   })
 
+  const unitLabel = computed(() => {
+    return unit.value === 'celsius' ? '섭씨(℃)' : '화씨(℉)'
+  })
+
   // 3. actions: 버튼 클릭 시 'celsius'와 'fahrenheit'를 토글(스위칭)하는 함수
   function toggleUnit() {
     unit.value = unit.value === 'celsius' ? 'fahrenheit' : 'celsius'
@@ -19,6 +23,7 @@ export const useConfigStore = defineStore('config', () => {
   return {
     unit,
     unitSymbol,
+    unitLabel,
     toggleUnit,
   }
 })
