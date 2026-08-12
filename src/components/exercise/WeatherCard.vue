@@ -1,4 +1,6 @@
 <script setup>
+import WeatherBadge from './WeatherBadge.vue'
+
 // 1. 상위로부터 단방향 주입받을 객체 데이터 규격 검수 (매크로)
 defineProps({
   cityItem: {
@@ -15,11 +17,12 @@ const emit = defineEmits(['select-card', 'click-detail'])
   <div class="weather-card" @click="emit('select-card', `${cityItem.name}이 선택되었습니다.`)">
     <h4>{{ cityItem.name }} ({{ cityItem.status }})</h4>
     <p>현재 기온: {{ cityItem.temp }}°C</p>
+    <p>습도: {{ cityItem.humidity }}%</p>
+    <p>바람: {{ cityItem.windSpeed }}m/s</p>
 
-    <span v-if="cityItem.temp >= 25" class="badge hot">🔥 더움</span>
-    <span v-else class="badge cool">❄️ 선선함</span>
+    <WeatherBadge :status="cityItem.status" :temp="cityItem.temp" :humidity="cityItem.humidity" :wind-speed="cityItem.windSpeed" />
 
-    <button class="btn-detail" @click.stop="emit('click-detail', cityItem.name, cityItem.status)">상세보기</button>
+    <button class="btn-detail" @click.stop="emit('click-detail', cityItem.name, cityItem.status, cityItem.humidity, cityItem.windSpeed)">상세보기</button>
   </div>
 </template>
 
@@ -32,19 +35,6 @@ const emit = defineEmits(['select-card', 'click-detail'])
   border-radius: 6px;
   cursor: pointer;
   position: relative;
-}
-.badge {
-  display: inline-block;
-  padding: 4px 8px;
-  font-size: 12px;
-  border-radius: 4px;
-  color: #fff;
-}
-.hot {
-  background-color: #ff7675;
-}
-.cool {
-  background-color: #74b9ff;
 }
 .btn-detail {
   position: absolute;
