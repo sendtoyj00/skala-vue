@@ -18,14 +18,14 @@ const configStore = useConfigStore()
   margin-left: auto;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
 }
 .toggle-btn {
-  padding: 6px 10px;
-  background-color: #4b6584;
-  color: white;
+  padding: var(--space-2) var(--space-3);
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
   border: none;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   font-weight: bold;
 }

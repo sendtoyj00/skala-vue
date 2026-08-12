@@ -1,52 +1,101 @@
-/* color palette from <https://github.com/vuejs/theme> */
+/* 디자인 토큰. 색은 역할 이름으로 짓는다(--color-red가 아니라 --color-danger) —
+   임계값이 바뀌어 위험 배정이 달라져도 이름을 다시 지을 필요가 없다.
+   (design_architecture.md 5절) */
+
 :root {
-  --vt-c-white: #ffffff;
-  --vt-c-white-soft: #f8f8f8;
-  --vt-c-white-mute: #f2f2f2;
+  /* color: surface/border/text */
+  --color-surface: #ffffff;
+  --color-surface-sunken: #f8f9fa;
+  --color-border: #dee2e6;
+  --color-text: #2c3e50;
+  --color-text-muted: #5b6472;
 
-  --vt-c-black: #181818;
-  --vt-c-black-soft: #222222;
-  --vt-c-black-mute: #282828;
+  /* color: 의미 색 — 위험도(채운 배지)와 표면(연한 칩) 쌍으로 제공 */
+  --color-danger: #d91010;
+  --color-danger-surface: #fdecea;
+  --color-warning: #b35c00;
+  --color-warning-surface: #fdf1e6;
+  --color-safe: #2e7d32;
+  --color-safe-surface: #eaf4eb;
+  --color-info: #0056b3;
+  --color-info-surface: #e6eefb;
 
-  --vt-c-indigo: #2c3e50;
+  /* color: 강조(주 버튼·활성 네비 등 브랜드 대용) */
+  --color-primary: #2c3e50;
+  --color-primary-surface: #eef1f4;
+  --color-on-primary: #ffffff;
+  --color-on-danger: #ffffff;
 
-  --vt-c-divider-light-1: rgba(60, 60, 60, 0.29);
-  --vt-c-divider-light-2: rgba(60, 60, 60, 0.12);
-  --vt-c-divider-dark-1: rgba(84, 84, 84, 0.65);
-  --vt-c-divider-dark-2: rgba(84, 84, 84, 0.48);
+  /* color: 산책 단계(F-23) — 날씨 위험과는 다른 축이라 danger/warning/safe를 재사용하지 않는다
+     (design_architecture.md 5.3). 4단계가 단조 증가하는 채도·명도를 갖는다. 1차 값 — 실측 대비비
+     확정 전까지 잠정치(마이그레이션 9단계에서 재검토). */
+  --color-walk-good: #1f6b4a;
+  --color-walk-caution: #8a5a00;
+  --color-walk-limited: #a13d05;
+  --color-walk-unsafe: #96201c;
+  --color-on-walk: #ffffff;
 
-  --vt-c-text-light-1: var(--vt-c-indigo);
-  --vt-c-text-light-2: rgba(60, 60, 60, 0.66);
-  --vt-c-text-dark-1: var(--vt-c-white);
-  --vt-c-text-dark-2: rgba(235, 235, 235, 0.64);
-}
+  /* typography */
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-size-xs: 12px;
+  --font-size-sm: 14px;
+  --font-size-base: 16px;
+  --font-size-md: 18px;
+  --font-size-lg: 20px;
+  --font-size-xl: 24px;
+  --font-size-2xl: 32px;
 
-/* semantic color variables for this project */
-:root {
-  --color-background: var(--vt-c-white);
-  --color-background-soft: var(--vt-c-white-soft);
-  --color-background-mute: var(--vt-c-white-mute);
+  /* spacing: 4배수 스케일 */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
 
-  --color-border: var(--vt-c-divider-light-2);
-  --color-border-hover: var(--vt-c-divider-light-1);
+  /* radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-full: 999px;
 
-  --color-heading: var(--vt-c-text-light-1);
-  --color-text: var(--vt-c-text-light-1);
-
-  --section-gap: 160px;
+  /* shadow: 2종 */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-background: var(--vt-c-black);
-    --color-background-soft: var(--vt-c-black-soft);
-    --color-background-mute: var(--vt-c-black-mute);
+    --color-surface: #1c222b;
+    --color-surface-sunken: #242b36;
+    --color-border: #38414f;
+    --color-text: #e7ebf0;
+    --color-text-muted: #a3aebb;
 
-    --color-border: var(--vt-c-divider-dark-2);
-    --color-border-hover: var(--vt-c-divider-dark-1);
+    --color-danger: #ff6b6b;
+    --color-danger-surface: #3a2023;
+    --color-warning: #e3a458;
+    --color-warning-surface: #3a2f1c;
+    --color-safe: #7cd992;
+    --color-safe-surface: #1e3322;
+    --color-info: #6fa8dc;
+    --color-info-surface: #1e2c3a;
 
-    --color-heading: var(--vt-c-text-dark-1);
-    --color-text: var(--vt-c-text-dark-2);
+    --color-primary: #e7ebf0;
+    --color-primary-surface: #2a323e;
+    --color-on-primary: #1c222b;
+    --color-on-danger: #1c222b;
+
+    --color-walk-good: #2f8f66;
+    --color-walk-caution: #a3721b;
+    --color-walk-limited: #c14f13;
+    --color-walk-unsafe: #c23a30;
+    --color-on-walk: #ffffff;
+
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.35);
+    --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.45);
   }
 }
 
@@ -55,31 +104,18 @@
 *::after {
   box-sizing: border-box;
   margin: 0;
-  font-weight: normal;
 }
 
 body {
   min-height: 100vh;
   color: var(--color-text);
-  background: var(--color-background);
+  background: var(--color-surface-sunken);
   transition:
-    color 0.5s,
-    background-color 0.5s;
+    color 0.2s,
+    background-color 0.2s;
   line-height: 1.6;
-  font-family:
-    Inter,
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    Roboto,
-    Oxygen,
-    Ubuntu,
-    Cantarell,
-    'Fira Sans',
-    'Droid Sans',
-    'Helvetica Neue',
-    sans-serif;
-  font-size: 15px;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

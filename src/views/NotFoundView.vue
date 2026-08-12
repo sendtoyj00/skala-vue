@@ -26,65 +26,60 @@ const goHome = () => {
 
 <!-- Scoped CSS로 이 컴포넌트에만 스타일 적용 -->
 <style scoped>
+/* 다른 화면과 같은 토큰(폰트·색·반경)을 써서 톤을 통일한다 (design_architecture.md 3절). */
 .not-found-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  /* 부모 요소(예: App.vue)에서 남은 높이를 다 쓰도록 설정 */
   min-height: 80vh;
-  background-color: #f8f9fa; /* 아주 연한 회색 배경 */
-  font-family: 'Noto Sans KR', sans-serif; /* 기본 폰트 설정 (옵션) */
+  background-color: var(--color-surface-sunken);
 }
 
 .not-found-content {
   text-align: center;
-  background-color: #ffffff;
-  padding: 50px;
-  border-radius: 16px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 은은한 그림자 */
-  border: 1px solid #e9ecef;
+  background-color: var(--color-surface);
+  padding: var(--space-8);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border);
 }
 
 .error-icon {
-  font-size: 5rem; /* 아주 크게 */
-  margin-bottom: 20px;
+  font-size: var(--font-size-2xl);
+  margin-bottom: var(--space-5);
 }
 
 h2 {
-  font-size: 2rem;
+  font-size: var(--font-size-xl);
   font-weight: 700;
-  color: #343a40; /* 짙은 회색 */
-  margin-bottom: 15px;
-  letter-spacing: -0.5px;
+  color: var(--color-text);
+  margin-bottom: var(--space-3);
 }
 
 p {
-  font-size: 1.1rem;
-  color: #6c757d; /* 중간 회색 */
+  font-size: var(--font-size-base);
+  color: var(--color-text-muted);
   line-height: 1.6;
-  margin-bottom: 35px;
+  margin-bottom: var(--space-8);
 }
 
 .home-button {
-  background-color: #007bff; /* 날씨 앱 포인트 컬러 (파란색) */
-  color: white;
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
   border: none;
-  padding: 12px 30px;
-  font-size: 1.1rem;
+  padding: var(--space-3) var(--space-6);
+  font-size: var(--font-size-base);
   font-weight: 500;
-  border-radius: 30px; /* 둥근 버튼 */
+  border-radius: var(--radius-full);
   cursor: pointer;
-  transition:
-    background-color 0.2s ease,
-    transform 0.1s ease;
+  transition: opacity 0.2s ease;
 }
 
-/* Hover 및 Active 효과 */
 .home-button:hover {
-  background-color: #0056b3; /* 조금 짙은 파란색 */
+  opacity: 0.9;
 }
 
 .home-button:active {
-  transform: scale(0.98); /* 클릭 시 살짝 눌리는 효과 */
+  transform: scale(0.98);
 }
 </style>

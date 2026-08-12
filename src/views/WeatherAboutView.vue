@@ -27,40 +27,47 @@ const handleGoHome = () => {
 </template>
 
 <style scoped>
+/* 화면 전체가 P4(부가 정보)다. 부가 정보 화면의 장식이 경보의 위험 표시보다 강해서는
+   안 되므로 채도 높은 브랜드색 대신 muted 톤으로 정정한다 (design_architecture.md 3절). */
 .description-box {
-  background-color: #f8f9fa;
-  padding: 12px;
-  border-radius: 6px;
+  background-color: var(--color-surface-sunken);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
   line-height: 1.5;
-  font-size: 14px;
+  font-size: var(--font-size-sm);
 }
 
 ul {
-  padding-left: 20px;
-  margin: 8px 0 0 0;
+  padding-left: var(--space-5);
+  margin: var(--space-2) 0 0 0;
 }
 
 li {
-  margin-bottom: 6px;
-  color: #555;
+  margin-bottom: var(--space-1);
+  color: var(--color-text);
 }
 
 code {
-  background-color: #ffeaa7;
-  padding: 2px 4px;
-  border-radius: 4px;
-  color: #d63031;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  padding: 2px var(--space-1);
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
 }
 
 .home-btn {
   width: 100%;
-  margin-top: 15px;
-  padding: 10px;
-  background-color: #3498db;
-  color: white;
-  border: none;
-  border-radius: 4px;
+  margin-top: var(--space-4);
+  padding: var(--space-3);
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
   font-weight: bold;
   cursor: pointer;
+}
+.home-btn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
 }
 </style>

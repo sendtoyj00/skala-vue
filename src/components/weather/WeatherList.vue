@@ -7,6 +7,12 @@ defineProps({
     type: Array,
     required: true,
   },
+  // WeatherCard로 그대로 전달하는 공용 강조 계약(WeatherCard.vue 참조).
+  emphasis: {
+    type: String,
+    default: 'primary',
+    validator: (value) => ['primary', 'muted'].includes(value),
+  },
 })
 
 defineEmits(['request-detail'])
@@ -14,7 +20,13 @@ defineEmits(['request-detail'])
 
 <template>
   <div>
-    <WeatherCard v-for="item in list" :key="item.id" :city-item="item" @request-detail="$emit('request-detail', $event)" />
+    <WeatherCard
+      v-for="item in list"
+      :key="item.id"
+      :city-item="item"
+      :emphasis="emphasis"
+      @request-detail="$emit('request-detail', $event)"
+    />
 
     <p v-if="list.length === 0" class="empty-state">😭 조건에 맞는 결과가 없습니다.</p>
   </div>
@@ -23,7 +35,7 @@ defineEmits(['request-detail'])
 <style scoped>
 .empty-state {
   text-align: center;
-  color: #6c757d;
-  padding: 10px 0;
+  color: var(--color-text-muted);
+  padding: var(--space-2) 0;
 }
 </style>
