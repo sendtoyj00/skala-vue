@@ -22,7 +22,7 @@ const emit = defineEmits(['select-card', 'click-detail'])
 
     <WeatherBadge :status="cityItem.status" :temp="cityItem.temp" :humidity="cityItem.humidity" :wind-speed="cityItem.windSpeed" />
 
-    <button class="btn-detail" @click.stop="emit('click-detail', cityItem.name, cityItem.status, cityItem.humidity, cityItem.windSpeed)">상세보기</button>
+    <button class="btn-detail" @click.stop="emit('click-detail', cityItem.name, cityItem.status, cityItem.humidity, cityItem.windSpeed, cityItem.id)">상세보기</button>
   </div>
 </template>
 

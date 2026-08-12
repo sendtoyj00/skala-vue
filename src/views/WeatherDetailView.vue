@@ -1,15 +1,18 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { weatherMockList } from '../components/exercise/weatherMockData'
 
 const route = useRoute()
 const router = useRouter()
 
-const mockDetails = {
-  city_01: { name: '대한민국 서울특별시', temp: 28, status: '맑음', humidity: '55%', wind: '2.5m/s' },
-  city_02: { name: '경기도 수원시 영통구', temp: 24, status: '비', humidity: '85%', wind: '4.1m/s' },
-  city_03: { name: '부산광역시 해운대구', temp: 26, status: '구름', humidity: '65%', wind: '5.0m/s' },
-}
+// Home / Alert 뷰와 동일한 목업 데이터를 기반으로 상세 정보 구성 (8개 도시 전체 커버)
+const mockDetails = Object.fromEntries(
+  weatherMockList.map((item) => [
+    item.id,
+    { name: item.name, temp: item.temp, status: item.status, humidity: `${item.humidity}%`, wind: `${item.windSpeed}m/s` },
+  ]),
+)
 
 const cityData = ref(null)
 
