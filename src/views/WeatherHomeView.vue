@@ -107,6 +107,12 @@ const handleDetailRequest = (cityId) => {
       :air-temp-celsius="myCityWeather.temp"
       :humidity="myCityWeather.humidity"
     />
+    <!-- F-30 최소 면책 문구. F-23(산책 판정)과 동시 투입이 원칙이라(service_architecture.md 3.5)
+         근거 화면(F-30 상세판) 없이도 판정 카드 옆에는 최소 한 줄을 둔다. 셸 레벨 정식 배치
+         (design_architecture.md 3.2)는 마이그레이션 7단계에서 대체한다. -->
+    <p v-if="walkVerdict" class="walk-disclaimer">
+      🐾 참고용 정보이며 수의학적 진단을 대체하지 않습니다. 개체의 건강 상태는 수의사와 상담하세요.
+    </p>
 
     <div class="search-row">
       <div class="search-col">
@@ -153,6 +159,13 @@ const handleDetailRequest = (cityId) => {
 </template>
 
 <style scoped>
+/* P4 — 최소 대비, 최소 크기. 숨기지는 않는다(design_architecture.md 2.3, service_architecture.md 11절). */
+.walk-disclaimer {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  margin: 0 0 var(--space-3);
+}
+
 /* 탐색 도구는 결과보다 작게, 한 줄로 압축한다(design_architecture.md 3.1 원칙 2).
    모바일은 세로 스택, 640px 이상에서 가로 2단으로 전환한다(7절 반응형 기준). */
 .search-row {

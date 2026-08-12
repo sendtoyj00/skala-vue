@@ -8,8 +8,9 @@ defineProps({
     type: Object,
     required: true,
   },
-  // 카드류 공용 강조 계약. WeatherList → WeatherCard → WeatherBadge로 그대로 흘려보낸다.
-  // 'muted'면 이 카드의 위험 표시가 화면의 최강 강조가 아니라는 뜻이다(design_architecture.md 2.6).
+  // 카드류 공용 강조 계약. WeatherList → WeatherCard로 전달돼 좌측 테두리/위험 플래그
+  // 강도를 결정한다. 'muted'면 이 카드의 위험 표시가 화면의 최강 강조가 아니라는 뜻이다
+  // (design_architecture.md 2.6). WeatherBadge는 판단 문구가 없어 이 prop을 받지 않는다.
   emphasis: {
     type: String,
     default: 'primary',
@@ -43,7 +44,7 @@ const { formatTemp, unitSymbol } = useTemperature()
       <span><span class="metric-label">바람</span> {{ cityItem.windSpeed }}m/s</span>
     </div>
 
-    <WeatherBadge :city-item="cityItem" :emphasis="emphasis" />
+    <WeatherBadge :city-item="cityItem" />
   </div>
 </template>
 

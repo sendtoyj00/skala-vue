@@ -137,7 +137,7 @@ View → Component → composable → Store → API 클라이언트 → 도메�
 | 도시·날씨 목록 | `weatherStore.cities` `[현재]` | 유지 | 세 라우트가 같은 목록을 읽는다 |
 | 로딩·오류 | `weatherStore.listStatus/listError` `[현재]` | 유지 | 6절 |
 | 선택 도시 | `route.params.cityId` `[현재]` | Router params 유지 | 링크 공유·새로고침 복원 |
-| 검색어 | 로컬 ref + URL query 사본 `[현재]` | 유지 | `WeatherHomeView.vue:20-35` |
+| 검색어 | 로컬 ref + URL query 사본 `[현재]` | 유지 | `WeatherHomeView.vue:56-69` |
 | 온도 단위 | `configStore.unit` `[현재]` | 유지 + 영속 `[예정]` | 8절 |
 | 위험 판정 결과 | 계산 `[현재]` | **상태로 두지 않음** | 원본에서 항상 계산 가능 |
 | **반려견 프로필** | 없음 | `dogStore` `[예정]` | 모든 라우트가 읽는다. 영속 필요 |
@@ -307,7 +307,7 @@ breedId → breeds.js → DogTraits(4축) → walkRules.js
 
 ### 5.5 검색 필터링 `[현재]`
 
-소비자가 `WeatherHomeView` 하나뿐이므로 그 View의 computed에 둔다(`WeatherHomeView.vue:39-51`). 재검토 조건: 두 번째 View가 같은 필터를 요구하는 순간 domain으로 승격.
+소비자가 `WeatherHomeView` 하나뿐이므로 그 View의 computed에 둔다(`WeatherHomeView.vue:73-85`). 재검토 조건: 두 번째 View가 같은 필터를 요구하는 순간 domain으로 승격.
 
 ### 5.6 관통 규칙
 
@@ -391,7 +391,7 @@ camelCase 선언/kebab-case 바인딩. 객체 통째(도메인 개체 자체 —
 
 kebab-case, `동사-명사`(발생한 사실, DOM 조작명 금지), **페이로드 1개**, **자식이 문구를 만들지 않는다**.
 
-현재 `WeatherCard.vue:14`가 `request-detail`로 `cityId` 하나만 넘긴다 — 직전의 5개 위치 인자 방식이 정정된 상태다. 신규 컴포넌트도 같은 규칙을 따른다: `select-dog`(dogId), `submit-profile`(profile 객체 1개).
+현재 `WeatherCard.vue:22`가 `request-detail`로 `cityId` 하나만 넘긴다 — 직전의 5개 위치 인자 방식이 정정된 상태다. 신규 컴포넌트도 같은 규칙을 따른다: `select-dog`(dogId), `submit-profile`(profile 객체 1개).
 
 ### 7.4 Store 변경은 action을 거친다
 
@@ -437,7 +437,7 @@ state/getter를 구조 분해할 때 `storeToRefs`를 쓴다. `const { unit } = 
 
 ### 8.3 경로 설계 규칙
 
-소문자+하이픈, 컬렉션은 복수형(`/dogs`), 동사 금지, 이동은 **`name` 기준**. 현재 `WeatherHomeView.vue:62`·`WeatherAlertView.vue`가 `router.push({name, params})`를 쓴다 — 문자열 경로 조립을 하지 않는다.
+소문자+하이픈, 컬렉션은 복수형(`/dogs`), 동사 금지, 이동은 **`name` 기준**. 현재 `WeatherHomeView.vue:96`·`WeatherAlertView.vue`가 `router.push({name, params})`를 쓴다 — 문자열 경로 조립을 하지 않는다.
 
 ### 8.4 params vs query
 
@@ -449,9 +449,9 @@ state/getter를 구조 분해할 때 `storeToRefs`를 쓴다. `const { unit } = 
 
 | 항목 | 결정 | 근거 |
 | --- | --- | --- |
-| 상태 주인 | 로컬 ref, URL은 사본 | `WeatherHomeView.vue:22-23` |
-| URL 반영 | `router.replace` | `WeatherHomeView.vue:30` — push는 타이핑마다 히스토리를 쌓는다 |
-| 반영 시점 | 300ms 디바운스 | `WeatherHomeView.vue:27-35` — 한글 IME 조합 중 글자가 URL에 박히는 것을 막는다 |
+| 상태 주인 | 로컬 ref, URL은 사본 | `WeatherHomeView.vue:56-57` |
+| URL 반영 | `router.replace` | `WeatherHomeView.vue:64` — push는 타이핑마다 히스토리를 쌓는다 |
+| 반영 시점 | 300ms 디바운스 | `WeatherHomeView.vue:60-69` — 한글 IME 조합 중 글자가 URL에 박히는 것을 막는다 |
 | 복원 | `setup` 본문에서 초기값 설정 | `onMounted` 미사용 |
 | KeepAlive | 사용하지 않는다 | 상태 주인이 셋으로 늘어난다 |
 
@@ -527,7 +527,7 @@ src/api/
 | 순서 | 작업 | 완료 판정 | 선행 | 되돌리기 비용 |
 | --- | --- | --- | --- | --- |
 | 1 | `domain/walkRules.js` — 판정 출력을 boolean→`{level, maxMinutes, reasons}` | 임계값이 한 곳, 단위 테스트 가능 | — | **파일 1개** |
-| 2 | `WalkVerdictCard` 1개를 홈 상단에(고정 프로필로 하드코딩) | 판정 문구가 화면에 뜬다 | 1 | 컴포넌트 1개 |
+| 2 | `WalkVerdictCard` 1개를 홈 상단에(고정 프로필로 하드코딩) + F-30 최소 면책 한 줄 동시 배치 | 판정 문구가 화면에 뜨고, 면책 문구가 같은 화면에 함께 있다(service_architecture.md 3.5 — F-23·F-30 동시 투입 필수) | 1 | 컴포넌트 1개 + 문구 1줄 |
 | 3 | `domain/breeds.js` + `DogProfileForm` + `dogStore`(메모리) | 견종 입력이 판정을 바꾼다 | 2 | 중간 |
 | 4 | **프로필 localStorage 영속** | 새로고침 후에도 유지 | 3 | **여기부터 사실상 확정** |
 | 5 | `domain/groundTemp.js` + `PawTempIndicator` | 추정 지면온도가 판정에 반영 | 1 | 중간 |

@@ -11,12 +11,14 @@ export const isDangerWeather = (item) =>
   item.status === DANGER_STATUS || item.windSpeed >= DANGER_WIND_SPEED || item.temp >= DANGER_TEMP
 
 // 위험 조건 1건당 코드 1개. 조합 전용 문구를 만들지 않는다(service_architecture.md 4절).
+// 행동 권고("~하세요")가 아니라 날씨 상태 설명만 담는다 — 행동 판정(산책 가능 여부)은
+// domain/walkRules.js 하나만 한다(service_architecture.md 1.4, 4.1 — 판정 주체는 1개).
 export const RECOMMENDATIONS = {
-  RAIN: { icon: '🌧️', text: '폭우가 예상되니 외출을 자제해주세요.' },
-  WIND: { icon: '🌪️', text: '강풍이 불고 있어 야외 활동을 피해주세요.' },
-  HEAT: { icon: '🔥', text: '기온이 높으니 더위에 주의하세요.' },
-  HEAT_HUMID: { icon: '🥵', text: '고온다습! 체감온도가 더 높으니 수분 섭취에 유의하세요.' },
-  SAFE: { icon: '🍃', text: '산책하기 좋은 날씨예요!' },
+  RAIN: { icon: '🌧️', text: '폭우가 내리고 있어요.' },
+  WIND: { icon: '🌪️', text: '바람이 강하게 불고 있어요.' },
+  HEAT: { icon: '🔥', text: '기온이 높은 날씨예요.' },
+  HEAT_HUMID: { icon: '🥵', text: '기온과 습도가 모두 높아요.' },
+  SAFE: { icon: '🍃', text: '평온한 날씨예요.' },
 }
 
 const MAX_RECOMMENDATIONS = 2
