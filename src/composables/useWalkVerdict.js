@@ -32,8 +32,15 @@ function fmtTime(ts) {
 export function useWalkVerdict() {
   const weatherStore = useWeatherStore()
   const dogStore = useDogStore()
-  const { cities, forecast, forecastStatus, myLocationWeather, myLocationForecast, myLocationStatus } =
-    storeToRefs(weatherStore)
+  const {
+    cities,
+    forecast,
+    forecastStatus,
+    myLocationWeather,
+    myLocationForecast,
+    myLocationStatus,
+    myLocationAirQuality,
+  } = storeToRefs(weatherStore)
 
   const geo = useGeolocation()
 
@@ -41,11 +48,13 @@ export function useWalkVerdict() {
   weatherStore.loadForecast(MY_CITY_ID)
   weatherStore.loadMyLocationWeather(geo.coords.value.lat, geo.coords.value.lon)
   weatherStore.loadMyLocationForecast(geo.coords.value.lat, geo.coords.value.lon)
+  weatherStore.loadMyLocationAirQuality(geo.coords.value.lat, geo.coords.value.lon)
 
   // mock → 실측 좌표로 바뀌면(geo.requestLocation() 이후) 위치 날씨를 다시 조회한다.
   watch(geo.coords, (next) => {
     weatherStore.loadMyLocationWeather(next.lat, next.lon)
     weatherStore.loadMyLocationForecast(next.lat, next.lon)
+    weatherStore.loadMyLocationAirQuality(next.lat, next.lon)
   })
 
   const activeDog = computed(() => dogStore.activeDog)
@@ -72,6 +81,7 @@ export function useWalkVerdict() {
       weather: myCityWeather.value,
       traits: activeDog.value.traits,
       groundTempCelsius: groundTemp.value.celsius,
+      airQuality: myLocationAirQuality.value,
     })
   })
 
@@ -121,6 +131,13 @@ export function useWalkVerdict() {
     return next ? `${next.label} 이후` : ''
   })
 
+  // 알림 예약용(F-37) — 다음 "좋음" 구간의 시작 timestamp 1개만 있으면 충분하다(과설계 방지).
+  // bestWindowRanges는 표시용 라벨 문자열만 갖고 있어 별도로 계산한다.
+  const nextGoodWindowAt = computed(() => {
+    const upcoming = forecastWindows.value.find((w) => w.level === 'good' && w.at > Date.now())
+    return upcoming ? upcoming.at : null
+  })
+
   return {
     activeDog,
     myCityWeather,
@@ -129,11 +146,13 @@ export function useWalkVerdict() {
     usingLiveLocation,
     groundTemp,
     verdict,
+    airQuality: myLocationAirQuality,
     forecast: activeForecast,
     forecastStatus,
     forecastWindows,
     goodWindows,
     bestWindowRanges,
     nextAvailableTime,
+    nextGoodWindowAt,
   }
 }

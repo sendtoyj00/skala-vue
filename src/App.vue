@@ -8,10 +8,12 @@ import DogSelector from './components/dog/DogSelector.vue'
 import NavSearch from './components/common/NavSearch.vue'
 import { useConfigStore } from './stores/configStore'
 import { useDogStore } from './stores/dogStore'
+import { useWalkLogStore } from './stores/walkLogStore'
 
 // 영속 상태 복원은 셸에서 한 번만 한다 — 화면마다 각자 복원하면 순서 경쟁이 생긴다.
 useConfigStore().restoreUnit()
 useDogStore().restoreDogs()
+useWalkLogStore().restoreLogs()
 </script>
 
 <template>
@@ -43,6 +45,9 @@ useDogStore().restoreDogs()
           </RouterLink>
           <RouterLink to="/weather/alerts" class="nav-item">
             <span aria-hidden="true">⚠️</span> 산책 불가 지역
+          </RouterLink>
+          <RouterLink to="/walks" class="nav-item">
+            <span aria-hidden="true">📒</span> 산책 기록
           </RouterLink>
           <RouterLink to="/about" class="nav-item">
             <span aria-hidden="true">ℹ️</span> 서비스 소개

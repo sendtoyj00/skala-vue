@@ -16,7 +16,9 @@ import WalkWindowTimeline from '../components/walk/WalkWindowTimeline.vue'
 import LocationBadge from '../components/walk/LocationBadge.vue'
 import RiskFactorPanel from '../components/walk/RiskFactorPanel.vue'
 import BestWalkTimeChips from '../components/walk/BestWalkTimeChips.vue'
+import WalkAlertToggle from '../components/walk/WalkAlertToggle.vue'
 import WalkRouteList from '../components/walk/WalkRouteList.vue'
+import WalkLogQuickAdd from '../components/walk/WalkLogQuickAdd.vue'
 import WalkChecklist from '../components/walk/WalkChecklist.vue'
 
 // 영속 상태 복원은 App.vue 셸에서 한 번만 한다(중복 복원은 값 자체는 같아 무해하지만
@@ -30,13 +32,15 @@ const {
   geo,
   groundTemp,
   verdict,
+  airQuality,
   forecastStatus,
   forecastWindows,
   bestWindowRanges,
   nextAvailableTime,
+  nextGoodWindowAt,
 } = useWalkVerdict()
 
-const { routes, selectedRouteId, selectRoute } = useWalkRoutes(coords, verdict, groundTemp)
+const { routes, selectedRouteId, selectedRoute, selectRoute } = useWalkRoutes(coords, verdict, groundTemp)
 
 // P2 — 판정 근거. 접어두더라도 접혀 있다는 표시는 남긴다. 감추지 않는다(design_architecture.md 2.4).
 const REASON_LABELS = {
@@ -45,6 +49,7 @@ const REASON_LABELS = {
   WIND: '풍속',
   HEAT_HUMID: '기온·습도',
   HEAT: '기온',
+  AIR_QUALITY: '대기질',
 }
 </script>
 
@@ -105,12 +110,18 @@ const REASON_LABELS = {
 
       <!-- 산책 위험 요소(F-35) — 판정 근거(위)는 "걸린 조건만", 이 패널은 "4개 축 전부"를
            상시 공개한다. 서로 다른 목적이라 별도 컴포넌트로 둔다. -->
-      <RiskFactorPanel v-if="myCityWeather && groundTemp" :weather="myCityWeather" :ground-temp-celsius="groundTemp.celsius" />
+      <RiskFactorPanel
+        v-if="myCityWeather && groundTemp"
+        :weather="myCityWeather"
+        :ground-temp-celsius="groundTemp.celsius"
+        :air-quality="airQuality"
+      />
 
       <!-- 부분 실패: 예보만 실패했을 때 타임라인 자리만 접는다. 판정 영역은 불변이다
            (service_architecture.md 8절, design_architecture.md 6.1). -->
       <template v-if="forecastStatus === 'success' && forecastWindows.length > 0">
         <BestWalkTimeChips :ranges="bestWindowRanges" />
+        <WalkAlertToggle :next-good-window-at="nextGoodWindowAt" />
         <WalkWindowTimeline :windows="forecastWindows" />
       </template>
       <p v-else-if="forecastStatus === 'error'" class="forecast-error">
@@ -125,6 +136,9 @@ const REASON_LABELS = {
         :center="coords"
         @select="selectRoute"
       />
+
+      <!-- 산책 기록(F-38) — 판정 확인 후 다녀온 시간을 짧게 남긴다 -->
+      <WalkLogQuickAdd :dog-id="activeDog?.id" :verdict="verdict" :route-label="selectedRoute?.name" />
 
       <!-- 산책 체크리스트 + 광고(F-36) -->
       <WalkChecklist />

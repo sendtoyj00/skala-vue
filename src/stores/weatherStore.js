@@ -40,6 +40,11 @@ export const useWeatherStore = defineStore('weather', () => {
   const myLocationStatus = ref('idle') // 'idle' | 'loading' | 'success' | 'error'
   const myLocationForecastStatus = ref('idle')
 
+  // state — 현재 위치 대기질. 기존 airQuality/loadAirQuality(cityId)는 도시 마스터 기준(city.lat/lon)
+  // 이라 좌표 기반 축(myLocationWeather와 동일 원칙)과 다르다 — 재사용하지 않고 별도로 둔다.
+  const myLocationAirQuality = ref(null)
+  const myLocationAirQualityStatus = ref('idle') // 'idle' | 'loading' | 'success' | 'error'
+
   // getters
   const dangerCityList = computed(() => cities.value.filter(isDangerWeather))
 
@@ -127,6 +132,16 @@ export const useWeatherStore = defineStore('weather', () => {
     }
   }
 
+  async function loadMyLocationAirQuality(lat, lon) {
+    myLocationAirQualityStatus.value = 'loading'
+    try {
+      myLocationAirQuality.value = await fetchAirQuality(lat, lon)
+      myLocationAirQualityStatus.value = 'success'
+    } catch {
+      myLocationAirQualityStatus.value = 'error'
+    }
+  }
+
   return {
     cities,
     listStatus,
@@ -140,6 +155,8 @@ export const useWeatherStore = defineStore('weather', () => {
     myLocationForecast,
     myLocationStatus,
     myLocationForecastStatus,
+    myLocationAirQuality,
+    myLocationAirQualityStatus,
     dangerCityList,
     findCityById,
     loadCityWeather,
@@ -148,5 +165,6 @@ export const useWeatherStore = defineStore('weather', () => {
     loadAirQuality,
     loadMyLocationWeather,
     loadMyLocationForecast,
+    loadMyLocationAirQuality,
   }
 })

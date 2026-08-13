@@ -634,6 +634,97 @@ markdown/
 
 ---
 
+# 6단계 — 미세먼지 판정 반영 / 산책 기록·통계 / 좋음 시간대 알림
+
+> 5단계(경로·지도·체크리스트) 제출본 대비 변경점만 기록한다. `service_architecture.md`가
+> "F-12 대기질 → F-23에 입력 추가"를 이미 예정된 다음 단계로 명시해 둔 상태였고(3.5절),
+> 여기에 산책이 실제로 남긴 흔적(기록)과 시간이 다가왔음을 알려주는 기능(알림) 2개를
+> 새 기능(F-37·F-38)으로 추가했다. 세 기능 모두 기존 아키텍처 원칙(순수 domain 함수 →
+> composable이 store 결합 → 컴포넌트는 표시만)을 그대로 따르고, 새 데이터 원천이나 새
+> 상태관리 패턴은 만들지 않았다.
+
+## 1. 미세먼지 판정 반영 (F-12 → F-23 배선)
+
+`fetchAirQuality`(OpenWeatherMap)는 4단계부터 있었지만 `WeatherDetailView.vue`에서
+"근거 확인용 원시 수치 노출"로만 쓰였고, 정작 `assessWalk()` 판정 파이프라인에는 연결돼
+있지 않았다. 이번에 그 배선만 채웠다.
+
+- `weatherStore.js`에 좌표 기반 로더 `myLocationAirQuality`/`loadMyLocationAirQuality(lat, lon)`을
+  `loadMyLocationWeather`와 동일한 패턴으로 신설했다. 기존 `airQuality`/`loadAirQuality(cityId)`(도시
+  마스터 기준, `WeatherDetailView` 전용)는 축이 달라 재사용하지 않았다.
+- `domain/walkRules.js`에 `AQI_CAUTION=4`(Poor)/`AQI_UNSAFE=5`(Very Poor) 상수를 추가했다.
+  개 기준 PM2.5 임계값은 `service_architecture.md` 6절이 여전히 `[결정 필요]`로 남긴 상태라,
+  이번에도 OpenWeatherMap의 사람 기준 원본 등급(aqi 1~5)을 그대로 썼다 — 근거를 주석에
+  명시하는 기존 관례를 그대로 따랐다. 대기질은 급성 위해도가 가장 낮은 축이라
+  `reasons.push` 우선순위 맨 뒤(지면온도 > 강수·강풍 > 기온·습도 > 대기질)에 둔다.
+  `assessWalk`/`getRiskFactors` 모두 `airQuality`를 optional로 받아, 로드 전·실패 시엔
+  이 축을 건너뛰고 조용히 폴백한다(design_architecture.md 6.4).
+- `RiskFactorPanel.vue`의 `<summary>` 텍스트를 하드코딩 "4가지"에서 `{{ factors.length }}가지`로
+  바꿨다 — 컴포넌트는 원래 축 개수에 무지(agnostic)하게 설계돼 있어 이 한 줄 외엔 변경이
+  필요 없었다.
+
+## 2. 산책 기록·통계 (F-38)
+
+판정 → 경로 추천까지는 됐지만 "산책했다"는 사실 자체가 어디에도 남지 않았다. `dogStore.js`가
+이미 갖춘 localStorage 영속화 패턴(watch 기반 저장, `restoreX()`를 App.vue 셸에서 1회 호출) 위에
+그대로 얹었다.
+
+- `stores/walkLogStore.js`(신규) — `dogId`별로 분리된 기록 배열, `logsForDog(dogId)`/
+  `statsForDog(dogId)`(이번 달 총 횟수·총 분·판정 단계 분포)를 제공한다.
+- `WalkLogQuickAdd.vue`(신규, 홈 화면의 경로 추천과 체크리스트 사이에 배치) — 분(minute) 입력 +
+  메모(선택) + "산책 기록 저장" 버튼. **"산책 시작→진행중→완료" 세션 상태는 의도적으로 만들지
+  않았다** — 새로고침·탭 이동 중 세션이 끊기는 문제를 피하려면 그 자체로 별도 저장소가
+  필요해지는데, 이 서비스는 실시간 GPS 추적 앱이 아니다. 판정을 확인한 뒤 "방금 다녀온
+  시간"을 짧게 남기는 방식으로 범위를 좁혔다.
+- `/walks`(`WalkLogListView.vue`, 신규) — 이번 달 통계 요약 + 판정 단계별 분포를 손으로 만든
+  CSS 막대로 표시(차트 라이브러리 미설치 상태를 유지 — `WalkWindowTimeline.vue`와 같은 원칙),
+  기존 `--color-walk-*` 토큰을 그대로 재사용해 판정 카드와 색이 일치한다. 날짜 내림차순
+  로그 리스트 + 삭제. `App.vue` 네비게이션에 "📒 산책 기록" 링크 추가.
+
+## 3. 좋음 시간대 알림 (F-37)
+
+`useWalkVerdict.js`가 이미 계산해 두던 "좋음" 구간(`bestWindowRanges`)을 칩으로 보여주기만
+했는데, 그 시간이 다가와도 알려주지 않았다. `useGeolocation.js`와 동일한 "진입 시 권한 자동
+요청 금지 → 버튼 클릭 시에만 권한 요청" 원칙을 브라우저 Notification API에도 그대로
+적용했다.
+
+- `useWalkVerdict.js`에 `nextGoodWindowAt`(다음 "좋음" 구간 시작 timestamp 1개) computed를
+  추가했다 — 전체 구간을 timestamp화하지 않고 알림에 필요한 값 하나만 최소로 확장했다
+  (과설계 방지).
+- `useWalkNotification.js`(신규) — `Notification.permission`을 초기화 시점에 읽기만 하고,
+  `requestPermissionAndEnable()`을 명시적으로 호출해야만 권한 프롬프트가 뜬다. 좋음 구간
+  시작 10분 전(`LEAD_MINUTES`)에 `setTimeout`으로 알림을 예약한다.
+- `WalkAlertToggle.vue`(신규, `BestWalkTimeChips` 바로 아래 배치) — `AdBreakSlot.vue`/
+  `LocationBadge.vue`와 같은 opt-in 버튼 상태 머신(미지원/대기/거부/켜짐).
+
+**범위 한계(명시적으로 남김)**: 이 알림은 브라우저 탭이 열려 있는 동안만 동작하는
+`setTimeout` 기반 포그라운드 알림이다. 탭을 닫거나 브라우저를 종료하면 예약된 알림은
+발사되지 않는다. 탭이 닫혀도 동작하는 진짜 백그라운드 push는 Service Worker + Push API +
+구독을 저장할 서버가 필요해 이번 범위에서 다루지 않았다 — 토글 옆 안내문("이 브라우저
+탭이 열려 있는 동안만 알려드려요")으로 이 한계를 상시 노출한다.
+
+## 검증
+
+- `npx eslint src` — 0 errors(기존 무관 warning 2건 제외). `npm run build` — 정상 빌드.
+- 브라우저 실측: 반려견 등록 → 홈 진입 시 "산책 위험 요소 5가지" 패널에 실제 OpenWeatherMap
+  대기질 값(AQI 2 · PM2.5 9.85㎍/㎥)이 5번째 축으로 표시되는 것 확인. "산책 기록 저장" →
+  `/walks`에서 방금 기록이 통계·막대그래프·리스트에 즉시 반영되고 새로고침 후에도 남는 것
+  확인(localStorage). 알림 토글은 자동화 브라우저 환경에서 `Notification.permission`이
+  기본 거부 상태라 "브라우저 설정에서 알림 권한을 허용하면…" 안내 분기가 정상 노출되는
+  것까지 확인 — 허용(`granted`) 흐름은 실제 사용자 브라우저에서 권한 프롬프트 승인으로
+  검증 필요.
+
+## 남은 이슈
+
+- 개 기준 PM2.5/AQI 임계값 — 여전히 사람 기준 OpenWeatherMap 등급 대체 사용(`[결정 필요]`)
+- 예보에는 시간별 대기질이 없어 `forecastWindows`(24시간 타임라인)에는 대기질을 반영하지
+  못했다 — 현재 관측 1개 값만 판정에 쓴다
+- 산책 기록에 실제 이동 경로(GPS 트랙)는 남기지 않는다 — 분(minute) 입력 기반의 수동 기록
+- 진짜 백그라운드 push(Service Worker + 서버) — 탭이 열려 있을 때만 동작하는 현재 구현의
+  대체 후보
+
+---
+
 ![날씨1 화면](./day3_weather1.png)
 ![날씨2 화면](./day3_weather2.png)
 ![날씨3 화면](./day3_weather3.png)

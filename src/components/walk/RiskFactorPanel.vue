@@ -5,16 +5,23 @@ import { getRiskFactors } from '@/domain/walkRules'
 const props = defineProps({
   weather: { type: Object, required: true }, // {temp, humidity, windSpeed, statusCode, status}
   groundTempCelsius: { type: Number, required: true },
+  airQuality: { type: Object, default: null }, // {aqi, pm2_5, pm10, observedAt} — 로드 전이면 null
 })
 
-const factors = computed(() => getRiskFactors({ weather: props.weather, groundTempCelsius: props.groundTempCelsius }))
+const factors = computed(() =>
+  getRiskFactors({
+    weather: props.weather,
+    groundTempCelsius: props.groundTempCelsius,
+    airQuality: props.airQuality,
+  }),
+)
 
 const SEVERITY_LABEL = { safe: '안전', caution: '주의', unsafe: '위험' }
 </script>
 
 <template>
   <details class="risk-panel">
-    <summary>🔍 산책 위험 요소 4가지</summary>
+    <summary>🔍 산책 위험 요소 {{ factors.length }}가지</summary>
     <ul class="risk-list">
       <li v-for="f in factors" :key="f.code" class="risk-row" :class="`severity-${f.severity}`">
         <span class="risk-icon" aria-hidden="true">{{ f.icon }}</span>

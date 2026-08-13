@@ -28,6 +28,13 @@ export const GROUND_TEMP_CAUTION = 44
 export const AIR_TEMP_CAUTION = 29
 export const HUMID_THRESHOLD = 80
 
+// AQI_CAUTION(4=Poor) / AQI_UNSAFE(5=Very Poor)
+//   OpenWeatherMap Air Pollution API의 공식 aqi 등급 정의(1 Good ~ 5 Very Poor)를 그대로
+//   쓴다. 개 기준으로 재해석한 PM2.5/PM10 임계값은 service_architecture.md 6절이
+//   [결정 필요]로 남긴 상태라, 사람 기준 원본 등급을 그대로 쓰는 1차 근거로 채택한다.
+export const AQI_CAUTION = 4
+export const AQI_UNSAFE = 5
+
 const LEVEL_ORDER = ['good', 'caution', 'limited', 'unsafe']
 
 function escalate(current, candidate) {
@@ -48,9 +55,11 @@ const MAX_MINUTES = {
 }
 
 // reasons는 조건 1건당 1개. 조합 전용 문구를 만들지 않는다(service_architecture.md 4.1).
-// push 순서가 우선순위다 — 지면온도 > 강수·강풍 > 기온·습도(service_architecture.md 4.5).
-// 반환 전 최대 2개로 자른다.
-export function assessWalk({ weather, traits, groundTempCelsius }) {
+// push 순서가 우선순위다 — 지면온도 > 강수·강풍 > 기온·습도 > 대기질(service_architecture.md
+// 4.5, 대기질은 급성 위해도가 가장 낮은 축이라 맨 뒤에 둔다). 반환 전 최대 2개로 자른다.
+// airQuality는 optional — null/undefined면 이 축은 건너뛴다(로딩 전·조회 실패 시에도
+// 판정이 깨지지 않게 한다, design_architecture.md 6.4).
+export function assessWalk({ weather, traits, groundTempCelsius, airQuality }) {
   const vulnerable = isVulnerable(traits)
   const reasons = []
   let level = 'good'
@@ -80,6 +89,16 @@ export function assessWalk({ weather, traits, groundTempCelsius }) {
     reasons.push({ code: humid ? 'HEAT_HUMID' : 'HEAT', threshold: AIR_TEMP_CAUTION, actual: weather.temp })
   }
 
+  if (airQuality != null) {
+    if (airQuality.aqi >= AQI_UNSAFE) {
+      level = escalate(level, vulnerable ? 'unsafe' : 'limited')
+      reasons.push({ code: 'AIR_QUALITY', threshold: AQI_UNSAFE, actual: airQuality.aqi })
+    } else if (airQuality.aqi >= AQI_CAUTION) {
+      level = escalate(level, vulnerable ? 'limited' : 'caution')
+      reasons.push({ code: 'AIR_QUALITY', threshold: AQI_CAUTION, actual: airQuality.aqi })
+    }
+  }
+
   return {
     level,
     maxMinutes: MAX_MINUTES[level][vulnerable ? 'vulnerable' : 'base'],
@@ -93,6 +112,7 @@ const ADVICE = {
   WIND: { icon: '🌪️', text: '바람이 강해요. 짧게, 트인 곳은 피해 주세요.' },
   HEAT_HUMID: { icon: '🥵', text: '덥고 습해요. 그늘 위주로, 물을 챙겨 주세요.' },
   HEAT: { icon: '☀️', text: '기온이 높아요. 그늘 위주로 짧게 다녀오세요.' },
+  AIR_QUALITY: { icon: '😷', text: '미세먼지가 많아요. 실외 활동을 줄이고 짧게 다녀오세요.' },
 }
 const SAFE_ADVICE = { icon: '🐕', text: '지금 산책하기 좋아요!' }
 
@@ -104,11 +124,13 @@ export function getWalkAdvice(verdict) {
 }
 
 // 산책 위험 요소 패널(F-35) 전용 — assessWalk()의 reasons는 "실제로 걸린 조건"만 반환하지만,
-// 이 함수는 4개 축 전부를 항상 반환한다(걸리지 않은 축도 "안전" 상태로 보여줘야 "판정 근거를
-// 투명하게 공개한다"는 요구를 만족한다). 판정 로직을 새로 만들지 않는다 — assessWalk()과 같은
-// 임계값을 그대로 재사용해 화면 문구와 실제 판정이 어긋나는 과거 실패(README 3단계 참조)를
-// 반복하지 않는다.
-export function getRiskFactors({ weather, groundTempCelsius }) {
+// 이 함수는 지면온도·기온습도·강수·풍속 4개 축을 항상 반환한다(걸리지 않은 축도 "안전" 상태로
+// 보여줘야 "판정 근거를 투명하게 공개한다"는 요구를 만족한다). 판정 로직을 새로 만들지 않는다 —
+// assessWalk()과 같은 임계값을 그대로 재사용해 화면 문구와 실제 판정이 어긋나는 과거 실패
+// (README 3단계 참조)를 반복하지 않는다.
+// airQuality가 주어질 때만 5번째 축(대기질)을 추가한다 — 로드 전·실패 시엔 조용히 4개만
+// 반환한다(design_architecture.md 6.4 부분 실패 원칙).
+export function getRiskFactors({ weather, groundTempCelsius, airQuality }) {
   const groundSeverity =
     groundTempCelsius >= GROUND_TEMP_UNSAFE ? 'unsafe' : groundTempCelsius >= GROUND_TEMP_CAUTION ? 'caution' : 'safe'
 
@@ -123,7 +145,7 @@ export function getRiskFactors({ weather, groundTempCelsius }) {
         : 'caution'
       : 'safe'
 
-  return [
+  const factors = [
     {
       code: 'GROUND_TEMP',
       icon: '🐾',
@@ -157,4 +179,19 @@ export function getRiskFactors({ weather, groundTempCelsius }) {
       thresholdLabel: `주의 ${DANGER_WIND_SPEED}m/s 이상`,
     },
   ]
+
+  if (airQuality != null) {
+    const airSeverity =
+      airQuality.aqi >= AQI_UNSAFE ? 'unsafe' : airQuality.aqi >= AQI_CAUTION ? 'caution' : 'safe'
+    factors.push({
+      code: 'AIR_QUALITY',
+      icon: '😷',
+      label: '대기질(미세먼지)',
+      severity: airSeverity,
+      valueLabel: `AQI ${airQuality.aqi} · PM2.5 ${airQuality.pm2_5}㎍/㎥`,
+      thresholdLabel: `주의 AQI ${AQI_CAUTION} 이상 · 위험 AQI ${AQI_UNSAFE}`,
+    })
+  }
+
+  return factors
 }

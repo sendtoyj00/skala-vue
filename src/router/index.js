@@ -38,6 +38,11 @@ const routes = [
     component: () => import('../views/DogListView.vue'),
   },
   {
+    path: '/walks',
+    name: 'WalkLogList',
+    component: () => import('../views/WalkLogListView.vue'),
+  },
+  {
     path: '/dogs/:dogId',
     name: 'DogProfile',
     component: () => import('../views/DogProfileView.vue'),
