@@ -19,10 +19,9 @@ owmClient.interceptors.request.use((config) => {
 
 // 기상청 도로기상관측자료(apihub.kma.go.kr)는 Access-Control-Allow-Origin 헤더를 주지 않는다
 // (curl로 실측 확인 — 브라우저에서 직접 fetch/axios 호출 시 CORS로 차단된다). 개발 서버는
-// vite.config.js의 프록시(/kma-api)로 우회한다. 운영 배포(정적 호스팅)에는 이 프록시가 없으므로
-// 별도 서버리스 프록시가 필요하다 — 이 프로젝트엔 백엔드가 없어 아직 [결정 필요]로 남는다
-// (vue_architecture.md 9절 — 백엔드가 없다는 전제와 정면으로 부딪히는 지점).
-const KMA_BASE = import.meta.env.DEV ? '/kma-api' : 'https://apihub.kma.go.kr'
+// vite.config.js의 프록시(/kma-api)로, 운영 배포는 api/kma-proxy/[...path].js 서버리스 함수로
+// 우회한다 — 둘 다 authKey를 그쪽에서 주입하므로 이 클라이언트가 보내는 값은 프록시 경유 시 무시된다.
+const KMA_BASE = import.meta.env.DEV ? '/kma-api' : '/api/kma-proxy'
 
 export const kmaClient = axios.create({
   baseURL: KMA_BASE,
