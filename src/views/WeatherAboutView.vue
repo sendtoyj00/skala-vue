@@ -11,7 +11,7 @@ const handleGoHome = () => {
 <template>
   <div class="dashboard-wrapper">
     <p class="page-eyebrow">About · P4</p>
-    <h3 class="page-title">ℹ️ 서비스 소개</h3>
+    <h3 class="page-title">🌱 왈씨 이야기</h3>
 
     <div class="description-box">
       <p>본 앱은 <strong>Vue 3</strong> 및 <strong>Vue Router 4</strong> 기반 제작된 실습용 기상 관측 대시보드 시스템입니다.</p>

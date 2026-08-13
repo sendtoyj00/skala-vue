@@ -25,11 +25,7 @@ const { formatTemp, unitSymbol } = useTemperature()
 </script>
 
 <template>
-  <div
-    class="weather-card"
-    :class="{ danger: isDangerWeather(cityItem), muted: emphasis === 'muted' }"
-    @click="emit('request-detail', cityItem.id)"
-  >
+  <div class="weather-card" :class="{ danger: isDangerWeather(cityItem), muted: emphasis === 'muted' }" v-glow-tilt @click="emit('request-detail', cityItem.id)">
     <div v-if="isDangerWeather(cityItem)" class="danger-flag">⚠ 위험</div>
 
     <div class="card-head">
@@ -52,61 +48,119 @@ const { formatTemp, unitSymbol } = useTemperature()
 .weather-card {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  padding: var(--space-3) var(--space-4);
-  margin-bottom: var(--space-2);
-  border-radius: var(--radius-md);
+
+  padding: var(--space-4);
+
+  border-radius: var(--radius-lg);
+
   cursor: pointer;
   position: relative;
+
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+
   transition:
-    transform 0.15s ease,
-    box-shadow 0.15s ease,
-    border-color 0.15s ease;
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    border-color 0.18s ease;
 }
+
 .weather-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-sm);
+  transform: translateY(-3px);
+
+  box-shadow: 0 10px 28px rgba(38, 50, 56, 0.07);
+
   border-color: var(--color-border-strong);
 }
+
+/* 위험 카드 */
 .weather-card.danger {
-  border-left: 4px solid var(--color-danger);
+  border-color: var(--color-danger-surface);
+
+  background: linear-gradient(135deg, var(--color-surface) 0%, var(--color-danger-surface) 100%);
 }
+
 .weather-card.danger.muted {
-  border-left-color: var(--color-text-muted);
+  border-color: var(--color-border);
+  background: var(--color-surface);
 }
+
+/* 위험 표시 */
 .danger-flag {
+  display: inline-flex;
+  align-items: center;
+
+  width: fit-content;
+
   font-size: var(--font-size-xs);
+  font-weight: 700;
+
   color: var(--color-danger);
-  font-weight: bold;
-  margin-bottom: var(--space-1);
+
+  background: var(--color-danger-surface);
+
+  padding: 4px 8px;
+
+  border-radius: var(--radius-full);
+
+  margin-bottom: var(--space-2);
 }
+
 .weather-card.muted .danger-flag {
   color: var(--color-text-muted);
+  background: var(--color-surface-sunken);
 }
+
+/* 상단 */
 .card-head {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
+
+  gap: var(--space-3);
 }
+
 .city-name {
   font-size: var(--font-size-md);
-  font-weight: 700;
+  font-weight: 800;
   margin: 0;
 }
+
 .status-label {
   color: var(--color-text-muted);
+
+  font-size: var(--font-size-sm);
+  font-weight: 600;
 }
+
+/* 온도 */
 .temp-value {
   font-size: var(--font-size-2xl);
   font-weight: 700;
-  margin: var(--space-1) 0;
+
+  letter-spacing: -0.04em;
+
+  color: var(--color-text);
+
+  margin: var(--space-3) 0 var(--space-4);
 }
+
+/* 환경 정보 */
 .card-metrics {
   display: flex;
+
   gap: var(--space-4);
+
   color: var(--color-text);
+
   font-size: var(--font-size-sm);
-  margin-bottom: var(--space-2);
+
+  margin-top: auto;
+  margin-bottom: var(--space-3);
 }
+
 .metric-label {
   color: var(--color-text-muted);
 }

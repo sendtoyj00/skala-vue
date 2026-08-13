@@ -20,22 +20,44 @@ defineEmits(['request-detail'])
 
 <template>
   <div>
-    <WeatherCard
-      v-for="item in list"
-      :key="item.id"
-      :city-item="item"
-      :emphasis="emphasis"
-      @request-detail="$emit('request-detail', $event)"
-    />
+    <!-- 도시별 카드 그리드 — 참고 대시보드처럼 카드가 세로로 쌓이지 않고 격자로 펼쳐진다.
+         화면 폭에 따라 열 수가 자동으로 늘고 준다(auto-fill). -->
+    <div class="weather-grid">
+      <WeatherCard v-for="item in list" :key="item.id" :city-item="item" :emphasis="emphasis" @request-detail="$emit('request-detail', $event)" />
+    </div>
 
     <p v-if="list.length === 0" class="empty-state">😭 조건에 맞는 결과가 없습니다.</p>
   </div>
 </template>
 
 <style scoped>
+.weather-grid {
+  display: grid;
+
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+
+  gap: var(--space-5);
+
+  align-items: stretch;
+}
+
 .empty-state {
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 180px;
+
+  margin: 0;
+
   color: var(--color-text-muted);
-  padding: var(--space-2) 0;
+
+  background: var(--color-surface);
+
+  border: 1px dashed var(--color-border);
+
+  border-radius: var(--radius-lg);
+
+  font-size: var(--font-size-sm);
 }
 </style>

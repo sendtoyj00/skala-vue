@@ -20,7 +20,7 @@ const SEVERITY_LABEL = { safe: '안전', caution: '주의', unsafe: '위험' }
 </script>
 
 <template>
-  <details class="risk-panel">
+  <details class="risk-panel" v-glow-tilt>
     <summary>🔍 산책 위험 요소 {{ factors.length }}가지</summary>
     <ul class="risk-list">
       <li v-for="f in factors" :key="f.code" class="risk-row" :class="`severity-${f.severity}`">
@@ -36,9 +36,11 @@ const SEVERITY_LABEL = { safe: '안전', caution: '주의', unsafe: '위험' }
 
 <style scoped>
 .risk-panel {
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--glass-border);
   border-radius: var(--radius-md);
-  background: var(--color-surface);
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%);
   margin-bottom: var(--space-4);
 }
 .risk-panel summary {

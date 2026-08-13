@@ -45,7 +45,7 @@ const checkedCount = () => Object.values(checked.value).filter(Boolean).length
 </script>
 
 <template>
-  <details class="checklist" open>
+  <details class="checklist" open v-glow-tilt>
     <summary>🎒 산책 준비물 체크리스트 ({{ checkedCount() }}/{{ DEFAULT_ITEMS.length }})</summary>
     <ul class="items">
       <li v-for="item in DEFAULT_ITEMS" :key="item.id">
@@ -58,9 +58,11 @@ const checkedCount = () => Object.values(checked.value).filter(Boolean).length
 
 <style scoped>
 .checklist {
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--glass-border);
   border-radius: var(--radius-md);
-  background: var(--color-surface);
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%);
   padding: var(--space-3) var(--space-4);
   margin-bottom: var(--space-4);
 }
@@ -77,7 +79,28 @@ const checkedCount = () => Object.values(checked.value).filter(Boolean).length
   margin: var(--space-2) 0 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: var(--space-2);
+}
+.items li {
+  min-width: 0;
+}
+/* Element Plus 체크박스는 기본이 한 줄(white-space: nowrap) 라벨이라 긴 항목("신발 또는
+   패드 보호제(지면 뜨거울 때)")이 카드 밖으로 삐져나갔다 — 줄바꿈을 허용하고 체크박스를
+   첫 줄 텍스트에 맞춰 위쪽 정렬한다. */
+.items li :deep(.el-checkbox) {
+  display: flex;
+  align-items: flex-start;
+  height: auto;
+  width: 100%;
+  white-space: normal;
+}
+.items li :deep(.el-checkbox__input) {
+  margin-top: 2px;
+}
+.items li :deep(.el-checkbox__label) {
+  white-space: normal;
+  overflow-wrap: break-word;
+  line-height: 1.4;
 }
 </style>

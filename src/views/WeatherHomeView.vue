@@ -10,11 +10,13 @@ import ErrorState from '../components/common/ErrorState.vue'
 import StatusBar from '../components/common/StatusBar.vue'
 import AdBreakSlot from '../components/common/AdBreakSlot.vue'
 import { useWeatherStore } from '@/stores/weatherStore'
-import { isDangerWeather } from '@/domain/weatherRules'
+import { useGeolocation } from '@/composables/useGeolocation'
+import { haversineKm } from '@/domain/groundTemp'
 
 const router = useRouter()
 const route = useRoute()
 const weatherStore = useWeatherStore()
+const geo = useGeolocation()
 
 weatherStore.loadCityWeather()
 
@@ -36,10 +38,14 @@ watch([searchQuery, statusQuery], ([newSearch, newStatus]) => {
 })
 onBeforeUnmount(() => clearTimeout(debounceTimer))
 
-// 위험 지역이 목록 상단에 오도록 정렬한다(design_architecture.md 3.1 원칙 5).
+// [정렬 기준 변경] 이전에는 위험 지역이 상단에 오도록 정렬했다(design_architecture.md 3.1
+// 원칙 5). 이번 요청은 "나열 순서 가까운 위치 순"을 명시했으므로 현재 위치(geo.coords, GPS
+// 허용 전에는 mock 서울시청 좌표)에서 가까운 도시 순으로 바꾼다 — 위험 배지(⚠ 위험)는 카드에
+// 계속 표시되니 위험 정보 자체가 사라지진 않는다, 다만 목록 순서의 우선순위 축이 바뀐다.
 const filteredWeatherList = computed(() => {
   const cityQuery = searchQuery.value.trim()
   const weatherQuery = statusQuery.value.trim()
+  const { lat, lon } = geo.coords.value
 
   return weatherStore.cities
     .filter((item) => {
@@ -48,7 +54,11 @@ const filteredWeatherList = computed(() => {
       return cityMatch && weatherMatch
     })
     .slice()
-    .sort((a, b) => Number(isDangerWeather(b)) - Number(isDangerWeather(a)))
+    .sort((a, b) => {
+      const distA = a.lat != null && a.lon != null ? haversineKm(lat, lon, a.lat, a.lon) : Infinity
+      const distB = b.lat != null && b.lon != null ? haversineKm(lat, lon, b.lat, b.lon) : Infinity
+      return distA - distB
+    })
 })
 
 const resultCount = computed(() => filteredWeatherList.value.length)
@@ -67,7 +77,7 @@ const handleDetailRequest = (cityId) => {
 <template>
   <div class="dashboard-wrapper">
     <p class="page-eyebrow">Weather · P2·P3</p>
-    <h1 class="page-title">🌦️ 지역 날씨</h1>
+    <h1 class="page-title">🌦️ 날씨 현황</h1>
     <p class="downgrade-note">
       산책 판정은 <RouterLink to="/">판정 홈</RouterLink>에서 확인하세요. 여기서는 지역별 날씨를
       찾아볼 수 있어요.
@@ -106,7 +116,6 @@ const handleDetailRequest = (cityId) => {
          emphasis="muted"로 유지해 위험 배지·좌측 바가 빨강으로 과하게 도드라지지 않게 한다
          (design_architecture.md 2.6). -->
     <BaseDashboardCard>
-      <h3>🏙️ 지역별 날씨 현황</h3>
       <WeatherCardSkeleton v-if="weatherStore.listStatus === 'loading'" />
       <ErrorState
         v-else-if="weatherStore.listStatus === 'error'"

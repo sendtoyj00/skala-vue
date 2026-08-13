@@ -45,7 +45,7 @@ function saveLog() {
 </script>
 
 <template>
-  <section v-if="verdict && dogId" class="log-quick-add" aria-labelledby="log-quick-add-title">
+  <section v-if="verdict && dogId" class="log-quick-add" aria-labelledby="log-quick-add-title" v-glow-tilt>
     <h2 id="log-quick-add-title">🐾 산책 기록 남기기</h2>
     <div class="log-form">
       <label class="minutes-field">
@@ -53,7 +53,7 @@ function saveLog() {
         <el-input-number v-model="minutes" :min="1" :max="180" :step="5" size="default" />
       </label>
       <el-input v-model="note" placeholder="메모(선택) — 예: 공원에서 잘 뛰었어요" maxlength="60" />
-      <el-button type="primary" round @click="saveLog">산책 기록 저장</el-button>
+      <el-button round @click="saveLog"> 산책 기록 저장 </el-button>
     </div>
     <p v-if="savedAt" class="saved-note">기록했어요 🐾 — <RouterLink to="/walks">산책 기록 보기</RouterLink></p>
   </section>
@@ -61,9 +61,11 @@ function saveLog() {
 
 <style scoped>
 .log-quick-add {
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--glass-border);
   border-radius: var(--radius-md);
-  background: var(--color-surface);
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%);
   padding: var(--space-4);
   margin-bottom: var(--space-4);
 }

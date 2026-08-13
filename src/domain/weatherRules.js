@@ -58,3 +58,24 @@ export function getWeatherAdvice(item) {
   if (codes.length === 0) return [RECOMMENDATIONS.SAFE]
   return codes.slice(0, MAX_RECOMMENDATIONS).map((code) => RECOMMENDATIONS[code])
 }
+
+// 날씨 무드(UI 테마 전용, F-40 유사). statusCode(classifyStatusCode 결과)를 6개 무드로
+// 단순화한다 — 판정(walkRules.js)과는 완전히 분리된 장식용 매핑이라 여기 두되 walkRules.js는
+// 참조하지 않는다(판정 주체는 여전히 1개). 더위는 맑음/흐림보다 우선한다 — 발바닥 화상
+// 위험이 하늘 상태보다 사용자에게 더 중요한 신호이기 때문이다.
+const STATUS_CODE_TO_MOOD = {
+  CLEAR: 'sunny',
+  CLOUDS: 'cloudy',
+  RAIN: 'rain',
+  DRIZZLE: 'rain',
+  STORM: 'storm',
+  SNOW: 'snow',
+  ATMOSPHERE: 'cloudy',
+  UNKNOWN: 'cloudy',
+}
+
+export function getWeatherMood(item) {
+  if (!item) return 'cloudy'
+  if (item.temp != null && item.temp >= DANGER_TEMP) return 'hot'
+  return STATUS_CODE_TO_MOOD[item.statusCode] ?? 'cloudy'
+}

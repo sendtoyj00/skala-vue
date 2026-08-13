@@ -6,6 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>왈씨 Walssi — 지금, 우리 아이 산책 괜찮을까요</title>
 
+    <!-- 새로고침 시 색상 번쩍임 방지: 날씨 API 응답 전까지는 :root 기본값(흐림 무드)이 잠깐
+         보였다가 실제 날씨 무드로 바뀌면서 색이 튀어 보였다. Vue가 로드되기 전, 페인트가
+         일어나기 전에 마지막으로 확인된 무드를 즉시 적용해 그 틈을 없앤다
+         (App.vue가 날씨를 새로 받아올 때마다 이 캐시를 갱신한다). -->
+    <script>
+      try {
+        var cachedMood = localStorage.getItem('walssi:lastWeatherMood')
+        if (cachedMood) document.documentElement.dataset.weather = cachedMood
+      } catch (e) {}
+    </script>
+
     <!-- 타이포그래피: Pretendard(본문/디스플레이, 한글 가변폭 산세리프) + JetBrains Mono(수치·계측값
          전용). 온도·분·퍼센트 같은 "측정값"은 고정폭 모노스페이스로 통일해 계측기 느낌을 준다
          (frontend-design 방향: 화면 전반의 서명 요소). -->

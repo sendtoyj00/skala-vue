@@ -2,7 +2,6 @@
 // 서비스의 얼굴 — 화면에서 유일하게 배경이 채워진 요소다(design_architecture.md 2.6, 4.2).
 // verdict는 통째로 받는다 — level/maxMinutes/reasons가 함께 움직이는 하나의 결과라
 // 분해해서 넘기면 서로 어긋난 조합이 타입상 가능해진다(vue_architecture.md 7.2).
-import { computed } from 'vue'
 import { getWalkAdvice } from '@/domain/walkRules'
 
 const props = defineProps({
@@ -44,77 +43,19 @@ const LEVEL_LABEL = {
   limited: '제한',
   unsafe: '위험',
 }
-
-// 원 기획서의 "위험 시 픽셀아트 장면 전환" 아이디어를 장식 요소로 격을 낮춰 반영한다.
-// 좋음~제한 단계는 발자국이 앞으로 나아가고, 위험 단계는 집 앞에서 멈춘다. 이 장면은
-// 상태를 전달하지 않는다 — 색약·저시력 사용자에게는 위 아이콘+텍스트만이 유일한 정보원이다
-// (design_architecture.md 8.3 "색 단독 의존 금지"). 그래서 aria-hidden으로 완전히 숨긴다.
-const isMoving = computed(() => props.verdict.level !== 'unsafe')
 </script>
 
 <template>
   <div class="walk-verdict-card" :class="`level-${verdict.level}`">
-    <div class="verdict-scene" aria-hidden="true">
-      <svg viewBox="0 0 400 160" preserveAspectRatio="xMidYMid slice">
-        <template v-if="isMoving">
-          <g
-            v-for="(p, i) in [
-              [40, 118, -18],
-              [78, 96, -10],
-              [118, 104, -14],
-              [158, 84, -8],
-              [198, 90, -12],
-              [238, 72, -6],
-              [278, 78, -10],
-              [318, 60, -4],
-            ]"
-            :key="'paw-' + i"
-            :transform="`translate(${p[0]},${p[1]}) rotate(${p[2]}) scale(1.6)`"
-          >
-            <ellipse cx="0" cy="0" rx="4" ry="5" fill="currentColor" />
-            <ellipse cx="-6" cy="-1" rx="2.4" ry="3" fill="currentColor" />
-            <ellipse cx="6" cy="-1" rx="2.4" ry="3" fill="currentColor" />
-            <ellipse cx="-3.6" cy="-8" rx="2.2" ry="2.8" fill="currentColor" />
-            <ellipse cx="3.6" cy="-8" rx="2.2" ry="2.8" fill="currentColor" />
-          </g>
-          <g transform="translate(350,46) scale(1.3)">
-            <ellipse cx="0" cy="4" rx="22" ry="12" fill="currentColor" />
-            <circle cx="20" cy="-6" r="10" fill="currentColor" />
-            <polygon points="26,-16 34,-24 30,-10" fill="currentColor" />
-            <polygon points="-18,10 -30,2 -20,-2" fill="currentColor" />
-          </g>
-        </template>
-        <template v-else>
-          <g
-            v-for="(p, i) in [
-              [40, 130, -18],
-              [78, 120, -10],
-              [112, 128, -8],
-            ]"
-            :key="'paw-' + i"
-            :transform="`translate(${p[0]},${p[1]}) rotate(${p[2]}) scale(1.4)`"
-          >
-            <ellipse cx="0" cy="0" rx="4" ry="5" fill="currentColor" />
-            <ellipse cx="-6" cy="-1" rx="2.4" ry="3" fill="currentColor" />
-            <ellipse cx="6" cy="-1" rx="2.4" ry="3" fill="currentColor" />
-            <ellipse cx="-3.6" cy="-8" rx="2.2" ry="2.8" fill="currentColor" />
-            <ellipse cx="3.6" cy="-8" rx="2.2" ry="2.8" fill="currentColor" />
-          </g>
-          <g transform="translate(300,70)">
-            <polygon points="0,10 40,10 40,58 0,58" fill="currentColor" opacity="0.9" />
-            <polygon points="-8,10 20,-22 48,10" fill="currentColor" />
-            <rect x="16" y="34" width="10" height="24" fill="var(--color-surface)" />
-            <ellipse cx="-14" cy="60" rx="20" ry="11" fill="currentColor" />
-            <circle cx="2" cy="50" r="9" fill="currentColor" />
-            <polygon points="6,42 13,35 10,47" fill="currentColor" />
-          </g>
-        </template>
-      </svg>
-    </div>
-
     <div class="level-row">
       <span class="level-chip">
-        <span aria-hidden="true">🐕</span>
+        <svg class="level-chip-icon" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+          <circle cx="12" cy="15.5" r="4.6" fill="currentColor" />
+          <circle cx="5.2" cy="9.5" r="2.3" fill="currentColor" />
+          <circle cx="9.6" cy="5" r="2.5" fill="currentColor" />
+          <circle cx="14.4" cy="5" r="2.5" fill="currentColor" />
+          <circle cx="18.8" cy="9.5" r="2.3" fill="currentColor" />
+        </svg>
         <span class="level-label">{{ LEVEL_LABEL[verdict.level] }}</span>
       </span>
       <span v-if="dogLabel" class="dog-label">{{ dogLabel }} 기준</span>
@@ -162,8 +103,6 @@ const isMoving = computed(() => props.verdict.level !== 'unsafe')
   overflow: hidden;
   isolation: isolate;
   box-shadow: var(--shadow-md);
-  background-image: var(--pattern-contour);
-  background-blend-mode: overlay;
 }
 .level-good {
   background-color: var(--color-walk-good);
@@ -177,18 +116,28 @@ const isMoving = computed(() => props.verdict.level !== 'unsafe')
 .level-unsafe {
   background-color: var(--color-walk-unsafe);
 }
-
-.verdict-scene {
+/* 서명 장식 — 발자국 트레일 대신 은은하게 겹치는 보케 블롭 2개로 정리한다(카드 안에서
+   패턴끼리 겹쳐 지저분해 보이던 문제를 없앤다). 상태 정보를 전달하지 않으므로
+   aria-hidden 없이도 무해하다 — 배경 장식일 뿐 색·아이콘·수치 3중 전달과 무관하다. */
+.walk-verdict-card::before,
+.walk-verdict-card::after {
+  content: '';
   position: absolute;
-  inset: 0;
-  opacity: 0.22;
-  pointer-events: none;
   z-index: 0;
+  border-radius: 50%;
+  pointer-events: none;
 }
-.verdict-scene svg {
-  width: 100%;
-  height: 100%;
-  display: block;
+.walk-verdict-card::before {
+  inset: 0;
+  border-radius: 0;
+  background: radial-gradient(circle at 12% -10%, rgba(255, 255, 255, 0.6), transparent 55%);
+}
+.walk-verdict-card::after {
+  width: 240px;
+  height: 240px;
+  right: -70px;
+  bottom: -90px;
+  background: radial-gradient(circle, rgba(0, 0, 0, 0.06) 0%, rgba(0, 0, 0, 0) 70%);
 }
 
 .level-row,
@@ -212,9 +161,14 @@ const isMoving = computed(() => props.verdict.level !== 'unsafe')
   gap: 6px;
   padding: 3px var(--space-3) 3px var(--space-2);
   border-radius: var(--radius-full);
-  background: rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   font-weight: 800;
   font-size: var(--font-size-base);
+}
+.level-chip-icon {
+  flex-shrink: 0;
 }
 .dog-label {
   font-weight: 600;
@@ -257,7 +211,7 @@ const isMoving = computed(() => props.verdict.level !== 'unsafe')
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: var(--space-2);
-  border-top: 1px dashed rgba(255, 255, 255, 0.4);
+  border-top: 1px dashed rgba(0, 0, 0, 0.16);
   padding-top: var(--space-3);
 }
 .basis-item dt {

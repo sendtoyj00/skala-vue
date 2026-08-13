@@ -20,7 +20,8 @@ import { estimateGroundTemp } from '@/domain/groundTemp'
 // [실측 위치 연동] 이전엔 "도시 마스터의 첫 항목을 내 동네로 고정"하는 잠정 처리였다.
 // useGeolocation()으로 좌표(처음엔 mock, 사용자가 허용하면 실측)를 얻어 lat/lon 쿼리로
 // 직접 조회한다 — city_01(서울)은 좌표 조회가 실패했을 때만 쓰는 최종 폴백으로 격하한다.
-const MY_CITY_ID = 'city_01'
+// App.vue의 날씨 무드 테마도 같은 폴백 도시를 기준으로 삼는다 — export해 공유한다.
+export const MY_CITY_ID = 'city_01'
 
 // "오늘" 라벨과 맞추기 위해 향후 24시간(3시간 간격 8개)만 본다(F-26, WalkHomeView.vue 이력 승계).
 const UPCOMING_WINDOW_COUNT = 8

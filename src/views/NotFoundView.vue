@@ -12,14 +12,21 @@ const goHome = () => {
   <!-- 전체 화면을 중앙 정렬하기 위한 래퍼 -->
   <div class="not-found-container">
     <div class="not-found-content">
-      <!-- 시각적 포인트를 위한 아이콘 또는 큰 텍스트 (옵션) -->
-      <div class="error-icon">☀️❓</div>
+      <span class="error-icon" aria-hidden="true">
+        <svg viewBox="0 0 40 40" width="40" height="40">
+          <ellipse cx="20" cy="28" rx="10" ry="8" fill="currentColor" />
+          <ellipse cx="7" cy="17" rx="4.2" ry="5.2" fill="currentColor" />
+          <ellipse cx="15.5" cy="9" rx="4.6" ry="5.6" fill="currentColor" />
+          <ellipse cx="24.5" cy="9" rx="4.6" ry="5.6" fill="currentColor" />
+          <ellipse cx="33" cy="17" rx="4.2" ry="5.2" fill="currentColor" />
+        </svg>
+      </span>
 
       <h2>페이지를 찾을 수 없습니다.</h2>
       <p>요청하신 주소가 존재하지 않거나,<br />아직 개발되지 않았습니다.</p>
 
       <!-- 포인트 컬러가 적용된 버튼 -->
-      <button class="home-button" @click="goHome">날씨 메인으로 이동</button>
+      <button class="home-button" @click="goHome">오늘 산책으로 이동</button>
     </div>
   </div>
 </template>
@@ -47,7 +54,14 @@ const goHome = () => {
 }
 
 .error-icon {
-  font-size: var(--font-size-2xl);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  border-radius: var(--radius-full);
+  background: var(--color-primary-surface);
+  color: var(--color-primary);
   margin-bottom: var(--space-5);
 }
 

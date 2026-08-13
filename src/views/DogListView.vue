@@ -37,14 +37,12 @@ function handleSubmit(profile) {
     </div>
 
     <ul v-if="dogStore.hasProfile" class="dog-list">
-      <li v-for="dog in dogStore.dogsWithTraits" :key="dog.id" class="dog-row">
+      <li v-for="dog in dogStore.dogsWithTraits" :key="dog.id" class="dog-row" v-glow-tilt>
         <RouterLink :to="`/dogs/${dog.id}`" class="dog-row-link">
-          <DogAvatar :name="dog.name" />
+          <DogAvatar :name="dog.name" size="md" />
           <span class="dog-info">
-            <span class="dog-name">
-              {{ dog.name }}
-              <span v-if="dog.id === dogStore.activeDog?.id" class="active-tag">기준 개체</span>
-            </span>
+            <span class="dog-name">{{ dog.name }}</span>
+            <span v-if="dog.id === dogStore.activeDog?.id" class="active-tag">기준 개체</span>
             <span class="dog-meta">{{ breedName(dog) }} · {{ AGE_LABEL[dog.ageClass] }} · {{ dog.weightKg }}kg</span>
           </span>
         </RouterLink>
@@ -85,6 +83,7 @@ h1 {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
   margin-bottom: var(--space-4);
 }
 .onboarding-icon {
@@ -102,9 +101,10 @@ h1 {
   background: var(--color-primary);
   color: var(--color-on-primary);
   border: none;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-full);
   font-weight: 700;
   cursor: pointer;
+  box-shadow: var(--shadow-sm);
 }
 .add-btn-secondary {
   background: var(--color-surface);
@@ -113,47 +113,51 @@ h1 {
   width: 100%;
   margin-bottom: var(--space-4);
 }
+/* 프로필 카드 그리드 — 참고 대시보드의 "Invånare" 카드처럼 반려견 하나하나가 격자에 펼쳐진다. */
 .dog-list {
   list-style: none;
   padding: 0;
   margin: 0 0 var(--space-4);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: var(--space-3);
 }
 .dog-row {
   display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: var(--space-3);
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-2);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-sm);
 }
 .dog-row-link {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: var(--space-3);
-  flex: 1;
+  text-align: center;
+  gap: var(--space-1);
   text-decoration: none;
   color: inherit;
-  min-height: 44px;
 }
 .dog-info {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  gap: 2px;
 }
 .dog-name {
   font-weight: 700;
   font-size: var(--font-size-sm);
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
 }
 .active-tag {
   font-size: 10px;
   font-weight: 700;
-  padding: 2px 6px;
+  padding: 2px 8px;
   border-radius: var(--radius-full);
   background: var(--color-primary-surface);
   color: var(--color-primary);
@@ -163,10 +167,11 @@ h1 {
   color: var(--color-text-muted);
 }
 .use-btn {
-  min-height: 44px;
+  min-height: 40px;
+  margin-top: var(--space-1);
   padding: 0 var(--space-3);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-full);
   background: var(--color-surface);
   color: var(--color-text);
   font-size: var(--font-size-xs);

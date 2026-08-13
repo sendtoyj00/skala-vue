@@ -1,55 +1,142 @@
 /* ============================================================================
-   왈씨 Walssi — 디자인 토큰
-   방향: "산책로 계측기(trail instrument)". 개가 걷는 지면(흙·점토·이끼)에서 색을 가져오고,
-   측정값은 모노스페이스로 계기판처럼 읽힌다. 색은 역할 이름으로 짓는다(--color-red가 아니라
-   --color-danger) — 임계값이 바뀌어 위험 배정이 달라져도 이름을 다시 지을 필요가 없다.
-   (design_architecture.md 5절)
+   왈씨 Walssi
    ============================================================================ */
 
 :root {
-  /* color: surface/border/text — 따뜻한 모래·종이 톤의 캔버스 위에 얹는다(순백/순회색 금지) */
-  --color-canvas: #efeae0;
-  --color-surface: #fffcf6;
-  --color-surface-sunken: #f6f1e6;
-  --color-border: #ddd3bd;
-  --color-border-strong: #c9bc9e;
-  --color-text: #212b22;
-  --color-text-muted: #6d7264;
+  /* --------------------------------------------------------------------------
+     Brand palette
+     밝고 맑은 톤을 기준으로 한 Soft Air 팔레트
+     -------------------------------------------------------------------------- */
 
-  /* color: 의미 색 — 위험도(채운 배지)와 표면(연한 칩) 쌍으로 제공. 진흙·점토·녹 계열로 통일 */
-  --color-danger: #a3382a;
-  --color-danger-surface: #f6e5e0;
-  --color-warning: #a06519;
-  --color-warning-surface: #f5ecd8;
-  --color-safe: #2f6b4f;
-  --color-safe-surface: #e4efe6;
-  --color-info: #33637d;
-  --color-info-surface: #e3edf1;
+  /* Yellow — 햇살 */
+  --yl-50: #fffdf7;
+  --yl-100: #fff8e7;
+  --yl-300: #ffedb5;
+  --yl-400: #f9d978;
+  --yl-500: #f2c65c;
+  --yl-700: #aa8330;
+  --yl-800: #765d24;
 
-  /* color: 강조(주 버튼·활성 네비 등 브랜드 대용) — 이끼색을 브랜드 축으로 삼는다 */
-  --color-primary: #2f5b46;
-  --color-primary-surface: #e4ede6;
-  --color-on-primary: #fbf8ef;
-  --color-on-danger: #fbf8ef;
+  /* Green — 자연 / 산책 */
+  --gr-50: #fbfdf9;
+  --gr-100: #f1f8eb;
+  --gr-300: #d8edc4;
+  --gr-400: #bfe29f;
+  --gr-500: #9dce78;
+  --gr-700: #6f9851;
+  --gr-800: #4f713a;
 
-  /* color: 산책 단계(F-23) — 지면의 상태를 은유한다: 이끼(좋음) → 마른풀(주의) → 마른흙(제한)
-     → 갈라진 붉은흙(위험). danger/warning/safe와 다른 축이라 재사용하지 않는다
-     (design_architecture.md 5.3). 4단계가 단조 증가하는 채도·명도를 갖는다. */
-  --color-walk-good: #2f6b4f;
-  --color-walk-good-surface: #e4efe6;
-  --color-walk-caution: #97691a;
-  --color-walk-caution-surface: #f4ecd7;
-  --color-walk-limited: #a85423;
-  --color-walk-limited-surface: #f5e6d7;
-  --color-walk-unsafe: #93291f;
-  --color-walk-unsafe-surface: #f3ded9;
-  --color-on-walk: #fbf8ef;
+  /* Sky — 브랜드 메인 */
+  --sk-50: #f7fdff;
+  --sk-100: #e9f8fc;
+  --sk-300: #c4ebf4;
+  --sk-400: #9cdae8;
+  --sk-500: #68c4d9;
+  --sk-700: #428fa2;
+  --sk-800: #326f7f;
 
-  /* typography — 본문/디스플레이는 Pretendard, 계측값(온도·분·퍼센트·시각)은 항상 모노스페이스로 */
-  --font-sans:
-    'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-    'Helvetica Neue', Arial, sans-serif;
+  /* Orange — 폭염 / 위험 */
+  --or-50: #fffaf5;
+  --or-100: #fff0df;
+  --or-300: #ffd1a3;
+  --or-400: #ffb86b;
+  --or-500: #ff9f43;
+  --or-700: #c96f20;
+  --or-800: #8f4d16;
+
+  /* --------------------------------------------------------------------------
+     Neutral
+     색상보다 "공간"이 먼저 보이도록 무채색을 적극 사용
+     -------------------------------------------------------------------------- */
+
+  --ink: #263238;
+  --ink-soft: #536168;
+  --ink-muted: #8b989d;
+
+  --paper: #ffffff;
+  --canvas: #f8fafb;
+
+  /* --------------------------------------------------------------------------
+     Surface / Border / Text
+     -------------------------------------------------------------------------- */
+
+  --color-canvas: var(--canvas);
+  --color-surface: var(--paper);
+  --color-surface-sunken: #f4f7f8;
+
+  --color-border: #e8edef;
+  --color-border-strong: #dce4e7;
+
+  --color-text: var(--ink);
+  --color-text-muted: var(--ink-muted);
+
+  /* --------------------------------------------------------------------------
+     Semantic colors
+     의미 색상은 채도를 낮추고 텍스트/아이콘 중심으로 사용
+     -------------------------------------------------------------------------- */
+
+  --color-danger: var(--or-700);
+  --color-danger-surface: var(--or-100);
+
+  --color-warning: var(--yl-700);
+  --color-warning-surface: var(--yl-100);
+
+  --color-safe: var(--gr-700);
+  --color-safe-surface: var(--gr-100);
+
+  --color-info: var(--sk-700);
+  --color-info-surface: var(--sk-100);
+
+  /* --------------------------------------------------------------------------
+     Brand / Primary
+     날씨에 따라 브랜드 색 자체가 바뀌지 않도록 Sky를 고정
+     -------------------------------------------------------------------------- */
+
+  --color-primary: var(--sk-500);
+  --color-primary-surface: var(--sk-100);
+  --color-on-primary: #ffffff;
+  --color-on-danger: #ffffff;
+  /* Walk status */
+  --color-walk-good: #9dce78;
+  --color-walk-good-surface: #f1f8eb;
+
+  --color-walk-caution: #f2c65c;
+  --color-walk-caution-surface: #fff8e7;
+
+  --color-walk-limited: #f3a85f;
+  --color-walk-limited-surface: #fff1e3;
+
+  --color-walk-unsafe: #e98272;
+  --color-walk-unsafe-surface: #fff0ed;
+
+  --color-on-walk: var(--ink);
+  /* --------------------------------------------------------------------------
+     Sidebar
+     강한 그라디언트 제거
+     -------------------------------------------------------------------------- */
+
+  --sidebar-bg: linear-gradient(180deg, #dff4f8 0%, #c8ebf2 55%, #b6e1ea 100%);
+
+  --sidebar-fg: #29434b;
+  --sidebar-fg-muted: #668088;
+  --sidebar-active-bg: rgba(255, 255, 255, 0.9);
+
+  /* --------------------------------------------------------------------------
+     Glass
+     -------------------------------------------------------------------------- */
+
+  --glass-bg: rgba(255, 255, 255, 0.72);
+  --glass-border: rgba(255, 255, 255, 0.85);
+  --glass-blur: 18px;
+
+  /* --------------------------------------------------------------------------
+     Typography
+     -------------------------------------------------------------------------- */
+
+  --font-sans: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+
   --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+
   --font-size-xs: 12px;
   --font-size-sm: 14px;
   --font-size-base: 16px;
@@ -57,9 +144,13 @@
   --font-size-lg: 20px;
   --font-size-xl: 26px;
   --font-size-2xl: 40px;
-  --tracking-tight: -0.02em;
 
-  /* spacing: 4배수 스케일 */
+  --tracking-tight: -0.01em;
+
+  /* --------------------------------------------------------------------------
+     Spacing
+     -------------------------------------------------------------------------- */
+
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -68,58 +159,203 @@
   --space-6: 24px;
   --space-8: 32px;
 
-  /* radius — 카드류는 넉넉히 둥글리고, 계측값 칩은 완전한 알약형(full)을 쓴다 */
-  --radius-sm: 6px;
-  --radius-md: 12px;
-  --radius-lg: 20px;
+  /* --------------------------------------------------------------------------
+     Radius
+     -------------------------------------------------------------------------- */
+
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
   --radius-full: 999px;
 
-  /* shadow: 2종. 채도를 낮춘 잉크색 그림자로 회색 대신 브랜드 톤을 살짝 남긴다 */
-  --shadow-sm: 0 2px 10px rgba(33, 43, 34, 0.07);
-  --shadow-md: 0 12px 32px rgba(33, 43, 34, 0.12);
+  /* --------------------------------------------------------------------------
+     Shadow
+     아주 약하게
+     -------------------------------------------------------------------------- */
 
-  /* 서명 요소: 등고선 패턴 — 헤더·판정 카드 배경에 반복해서 "산책로 지도" 정체성을 만든다 */
-  --pattern-contour: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='0.5' stroke-width='1'%3E%3Ccircle cx='30' cy='40' r='18'/%3E%3Ccircle cx='30' cy='40' r='34'/%3E%3Ccircle cx='30' cy='40' r='50'/%3E%3Ccircle cx='128' cy='120' r='14'/%3E%3Ccircle cx='128' cy='120' r='28'/%3E%3Ccircle cx='128' cy='120' r='42'/%3E%3C/g%3E%3C/svg%3E");
+  --shadow-sm: 0 2px 10px rgba(38, 50, 56, 0.05);
+  --shadow-md: 0 12px 32px rgba(38, 50, 56, 0.08);
 }
+
+/* ============================================================================
+   Weather Mood
+   캔버스 자체는 거의 흰색으로 유지하고,
+   날씨에 따라 "은은한 색조"만 변경
+   ============================================================================ */
+
+:root[data-weather='sunny'] {
+  --color-canvas: #fffdf8;
+  --color-surface-sunken: var(--yl-100);
+
+  --color-border: #f1e9d5;
+  --color-border-strong: var(--yl-300);
+
+  --color-primary: var(--yl-500);
+  --color-primary-surface: var(--yl-100);
+
+  --color-text-muted: #9a8658;
+
+  --sidebar-bg: linear-gradient(180deg, #fff7df 0%, #ffedbd 100%);
+
+  --sidebar-fg: #5d5136;
+  --sidebar-fg-muted: #8d7d5a;
+}
+
+:root[data-weather='cloudy'] {
+  --color-canvas: #fbfdf9;
+  --color-surface-sunken: var(--gr-100);
+
+  --color-border: #e7eee2;
+  --color-border-strong: var(--gr-300);
+
+  --color-primary: var(--gr-500);
+  --color-primary-surface: var(--gr-100);
+
+  --color-text-muted: #74856a;
+
+  --sidebar-bg: linear-gradient(180deg, #edf8e7 0%, #dcefcf 100%);
+
+  --sidebar-fg: #4d6543;
+  --sidebar-fg-muted: #718669;
+}
+
+:root[data-weather='rain'] {
+  --color-canvas: #f8fcfd;
+  --color-surface-sunken: var(--sk-100);
+
+  --color-border: #e1eef1;
+  --color-border-strong: var(--sk-300);
+
+  --color-primary: var(--sk-500);
+  --color-primary-surface: var(--sk-100);
+
+  --color-text-muted: #68858d;
+
+  --sidebar-bg: linear-gradient(180deg, #e8f7fb 0%, #cfeef5 100%);
+
+  --sidebar-fg: #456b75;
+  --sidebar-fg-muted: #73919a;
+}
+
+:root[data-weather='storm'] {
+  --color-canvas: #f6fafb;
+  --color-surface-sunken: var(--sk-100);
+
+  --color-border: #dcebef;
+  --color-border-strong: var(--sk-300);
+
+  --color-primary: var(--sk-700);
+  --color-primary-surface: var(--sk-100);
+
+  --color-on-primary: #ffffff;
+  --color-text-muted: var(--sk-700);
+
+  --sidebar-bg: linear-gradient(180deg, #d9eff5 0%, #acdce7 100%);
+
+  --sidebar-fg: #365f69;
+  --sidebar-fg-muted: #64838b;
+}
+
+:root[data-weather='snow'] {
+  --color-canvas: #fbfeff;
+  --color-surface-sunken: var(--sk-50);
+
+  --color-border: #e8f3f6;
+  --color-border-strong: var(--sk-100);
+
+  --color-primary: var(--sk-400);
+  --color-primary-surface: var(--sk-50);
+
+  --color-text-muted: #78939a;
+
+  --sidebar-bg: linear-gradient(180deg, #f3fcff 0%, #e0f4f8 100%);
+
+  --sidebar-fg: #55747c;
+  --sidebar-fg-muted: #809aa0;
+}
+
+:root[data-weather='hot'] {
+  --color-canvas: #fffaf5;
+  --color-surface-sunken: var(--or-100);
+
+  --color-border: #f2e6d8;
+  --color-border-strong: var(--or-300);
+
+  --color-primary: var(--or-500);
+  --color-primary-surface: var(--or-100);
+
+  --color-text-muted: #96765d;
+
+  --sidebar-bg: linear-gradient(180deg, #fff1e2 0%, #ffdcb8 100%);
+
+  --sidebar-fg: #704f36;
+  --sidebar-fg-muted: #97765b;
+}
+
+/* ============================================================================
+   Dark Mode
+   ============================================================================ */
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-canvas: #171b16;
-    --color-surface: #1f251e;
-    --color-surface-sunken: #262c24;
-    --color-border: #3a4136;
-    --color-border-strong: #4a5344;
-    --color-text: #edf0e6;
-    --color-text-muted: #a3ab98;
+    --color-canvas: #15191b;
+    --color-surface: #1d2326;
+    --color-surface-sunken: #252d30;
 
-    --color-danger: #e08b7a;
-    --color-danger-surface: #38251f;
-    --color-warning: #dcab5c;
-    --color-warning-surface: #372c1a;
-    --color-safe: #7fc39e;
-    --color-safe-surface: #1f2f26;
-    --color-info: #86b6c9;
-    --color-info-surface: #1f2c30;
+    --color-border: #303a3e;
+    --color-border-strong: #3c484d;
 
-    --color-primary: #8fd3ac;
-    --color-primary-surface: #24352a;
-    --color-on-primary: #14201a;
-    --color-on-danger: #22140f;
+    --color-text: #edf3f4;
+    --color-text-muted: #9caeb3;
 
-    --color-walk-good: #4a9873;
-    --color-walk-good-surface: #1f3227;
-    --color-walk-caution: #cf9f4f;
-    --color-walk-caution-surface: #362c1a;
-    --color-walk-limited: #d1874f;
-    --color-walk-limited-surface: #3a2a1c;
-    --color-walk-unsafe: #d9776a;
-    --color-walk-unsafe-surface: #3a231f;
-    --color-on-walk: #fbf8ef;
+    --color-danger: var(--or-300);
+    --color-danger-surface: #392d20;
 
-    --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.35);
-    --shadow-md: 0 12px 32px rgba(0, 0, 0, 0.5);
+    --color-warning: var(--yl-300);
+    --color-warning-surface: #393018;
+
+    --color-safe: var(--gr-300);
+    --color-safe-surface: #26341f;
+
+    --color-info: var(--sk-300);
+    --color-info-surface: #1d333a;
+
+    --color-primary: var(--sk-400);
+    --color-primary-surface: #1d333a;
+    --color-on-primary: #17343d;
+    --color-on-danger: #2d1d12;
+
+    --color-walk-good: var(--gr-300);
+    --color-walk-good-surface: #26341f;
+
+    --color-walk-caution: var(--yl-300);
+    --color-walk-caution-surface: #393018;
+
+    --color-walk-limited: var(--sk-300);
+    --color-walk-limited-surface: #1d333a;
+
+    --color-walk-unsafe: var(--or-300);
+    --color-walk-unsafe-surface: #392d20;
+
+    --color-on-walk: #182022;
+
+    --sidebar-bg: linear-gradient(180deg, #233c43 0%, #1c3036 100%);
+
+    --sidebar-fg: #e7f4f6;
+    --sidebar-fg-muted: #a9c0c5;
+    --sidebar-active-bg: rgba(255, 255, 255, 0.1);
+
+    --glass-bg: rgba(255, 255, 255, 0.07);
+    --glass-border: rgba(255, 255, 255, 0.12);
+
+    --shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.25);
+    --shadow-md: 0 16px 40px rgba(0, 0, 0, 0.35);
   }
 }
+
+/* ============================================================================
+   Global
+   ============================================================================ */
 
 *,
 *::before,
@@ -134,20 +370,26 @@ html {
 
 body {
   min-height: 100vh;
+
   color: var(--color-text);
   background: var(--color-canvas);
-  background-image: var(--pattern-contour);
-  background-attachment: fixed;
+
   transition:
     color 0.2s,
     background-color 0.2s;
+
   line-height: 1.6;
   font-family: var(--font-sans);
   font-size: var(--font-size-base);
+
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* ============================================================================
+   Typography
+   ============================================================================ */
 
 h1,
 h2,
@@ -158,8 +400,10 @@ h4 {
   font-weight: 800;
 }
 
-/* 계측값 전용 유틸리티 — 온도·분·퍼센트·시각 등 "읽어서 판단하는 숫자"에 붙인다.
-   화면 전체의 서명 타이포그래피 규칙: 산문은 Pretendard, 숫자는 항상 모노스페이스. */
+/* ============================================================================
+   Metrics
+   ============================================================================ */
+
 .metric,
 .metric-num {
   font-family: var(--font-mono);
@@ -167,10 +411,68 @@ h4 {
   font-feature-settings: 'tnum' 1;
 }
 
+/* ============================================================================
+   Glass
+   ============================================================================ */
+
+.glass-surface {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+
+  backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+}
+
+/* ============================================================================
+   Tilt Glow
+   ============================================================================ */
+
+.tilt-glow {
+  position: relative;
+
+  transition:
+    transform 0.15s ease-out,
+    box-shadow 0.15s ease;
+
+  will-change: transform;
+}
+
+.tilt-glow::before {
+  content: '';
+
+  position: absolute;
+  inset: 0;
+
+  z-index: 0;
+
+  opacity: 0;
+
+  border-radius: inherit;
+  pointer-events: none;
+
+  background: radial-gradient(280px circle at var(--mx, 50%) var(--my, 50%), rgba(255, 255, 255, 0.65), transparent 65%);
+
+  transition: opacity 0.25s ease;
+}
+
+.tilt-glow.is-active::before {
+  opacity: 1;
+}
+
+.tilt-glow > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ============================================================================
+   Reduced Motion
+   ============================================================================ */
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
   }
+
   *,
   *::before,
   *::after {

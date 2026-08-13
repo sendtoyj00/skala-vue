@@ -16,9 +16,7 @@ const props = defineProps({
 
 <template>
   <div class="badge-row">
-    <span v-for="advice in getWeatherAdvice(props.cityItem)" :key="advice.text" class="badge">
-      {{ advice.icon }} {{ advice.text }}
-    </span>
+    <span v-for="advice in getWeatherAdvice(props.cityItem)" :key="advice.text" class="badge"> {{ advice.icon }} {{ advice.text }} </span>
   </div>
 </template>
 

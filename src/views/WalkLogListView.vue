@@ -103,6 +103,7 @@ h1 {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
   margin-bottom: var(--space-4);
 }
 .onboarding-icon {
@@ -122,9 +123,10 @@ h1 {
   padding: var(--space-3) var(--space-6);
   background: var(--color-primary);
   color: var(--color-on-primary);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-full);
   font-weight: 700;
   text-decoration: none;
+  box-shadow: var(--shadow-sm);
 }
 
 .stats-card {
@@ -195,13 +197,14 @@ h1 {
   background: var(--color-walk-unsafe);
 }
 
+/* 기록 카드 그리드 — 리스트형 화면을 카드형으로 통일한다(다른 목록 화면과 동일한 원칙). */
 .log-list {
   list-style: none;
   margin: 0;
   padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--space-3);
 }
 .log-row {
   display: flex;

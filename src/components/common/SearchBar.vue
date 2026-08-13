@@ -38,12 +38,13 @@ defineProps({
     <label :for="inputId">{{ label }}</label>
     <input
       :id="inputId"
+      class="search-input"
       type="text"
       :value="currentQuery"
       @input="$emit('update-query', $event.target.value)"
       :placeholder="placeholder"
     />
-    <p>
+    <p class="search-hint">
       {{ hintLabel }} <strong>{{ currentQuery }}</strong>
     </p>
   </div>
@@ -54,6 +55,35 @@ defineProps({
   display: block;
   font-weight: 700;
   font-size: var(--font-size-sm);
-  margin-bottom: var(--space-1);
+  margin-bottom: var(--space-2);
+}
+/* 투명 검색창 — 카드 자체가 이미 글래스라, 입력창까지 불투명한 흰 박스로 남아있으면 카드
+   안에 또 다른 카드가 떠 있는 것처럼 보였다. 입력창도 같은 글래스 톤으로 맞춘다. */
+.search-inner .search-input {
+  background: rgba(255, 255, 255, 0.35);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-full);
+  padding: var(--space-2) var(--space-4);
+  backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+}
+.search-inner .search-input::placeholder {
+  color: var(--color-text-muted);
+}
+.search-inner .search-input:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.55);
+  border-color: var(--color-primary);
+}
+.search-hint {
+  margin: var(--space-2) 0 0;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+.search-hint strong {
+  color: var(--color-text);
 }
 </style>

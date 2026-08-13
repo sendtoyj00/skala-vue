@@ -18,10 +18,11 @@ let map = null
 let layerGroup = null
 
 // 팔레트 리뉴얼(base.css)과 동일한 값으로 맞춘다 — Leaflet은 CSS 변수를 못 읽어 직접 값을 쓴다.
+// base.css의 4색 스케일(--gr-700/--pk-700/--sk-700)과 정확히 같은 hex를 쓴다.
 const ROUTE_COLOR = {
-  relax: '#2f6b4f',
-  active: '#a85423',
-  easy: '#33637d',
+  relax: '#5a8730', // --gr-700
+  active: '#a6486e', // --pk-700
+  easy: '#26718c', // --sk-700
 }
 
 function emojiIcon(emoji) {
@@ -41,7 +42,7 @@ function render() {
     const isSelected = route.id === props.selectedRouteId
     const latlngs = route.path.map((p) => [p.lat, p.lon])
     L.polyline(latlngs, {
-      color: ROUTE_COLOR[route.type] ?? '#2f5b46',
+      color: ROUTE_COLOR[route.type] ?? '#8bc24d',
       weight: isSelected ? 5 : 2,
       opacity: isSelected ? 0.95 : 0.35,
     }).addTo(layerGroup)

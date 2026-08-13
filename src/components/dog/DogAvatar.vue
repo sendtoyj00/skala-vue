@@ -39,6 +39,8 @@ const initial = computed(() => (props.name ? props.name.trim().charAt(0) : '🐾
   color: var(--color-primary);
   font-weight: 700;
   overflow: hidden;
+  border: 2px solid var(--color-surface);
+  box-shadow: 0 0 0 1.5px var(--color-primary-surface);
 }
 .dog-avatar.size-md {
   width: 40px;

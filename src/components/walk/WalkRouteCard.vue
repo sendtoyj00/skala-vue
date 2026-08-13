@@ -10,16 +10,11 @@ defineEmits(['select'])
 </script>
 
 <template>
-  <button
-    type="button"
-    class="route-card"
-    :class="{ selected: isSelected, recommended: route.isRecommended }"
-    @click="$emit('select', route.id)"
-  >
+  <button type="button" class="route-card" :class="{ selected: isSelected, recommended: route.isRecommended }" @click="$emit('select', route.id)">
     <div class="route-head">
       <span class="route-icon" aria-hidden="true">{{ route.icon }}</span>
       <span class="route-name">{{ route.name }}</span>
-      <el-tag v-if="route.isRecommended" type="success" size="small" effect="dark" round>오늘의 추천</el-tag>
+      <el-tag v-if="route.isRecommended" class="recommended-tag" size="small" round> 오늘의 추천 </el-tag>
     </div>
 
     <div class="route-stats">
@@ -30,9 +25,7 @@ defineEmits(['select'])
       <span>{{ SHADE_LABEL[route.shadeLevel] }}</span>
     </div>
 
-    <p v-if="route.exceedsVerdict" class="route-warn">
-      ⚠ 지금 판정 가능 시간보다 길어요. 중간에 돌아오는 것도 고려하세요.
-    </p>
+    <p v-if="route.exceedsVerdict" class="route-warn">⚠ 지금 판정 가능 시간보다 길어요. 중간에 돌아오는 것도 고려하세요.</p>
 
     <ul class="route-reasons">
       <li v-for="(r, i) in route.reasons" :key="i">💡 {{ r }}</li>
@@ -41,6 +34,15 @@ defineEmits(['select'])
 </template>
 
 <style scoped>
+.recommended-tag {
+  background: var(--glass-bg);
+  color: var(--color-text);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  font-weight: 700;
+  box-shadow: var(--shadow-sm);
+}
 .route-card {
   display: block;
   width: 100%;

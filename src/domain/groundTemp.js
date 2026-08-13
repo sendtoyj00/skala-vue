@@ -33,7 +33,9 @@ export function estimateGroundTemp(weather, hour) {
 
 const EARTH_RADIUS_KM = 6371
 
-function haversineKm(lat1, lon1, lat2, lon2) {
+// 두 좌표 사이 직선거리(km). WeatherHomeView의 "가까운 위치 순" 정렬도 이 구현을 재사용한다
+// — 지구 반경 상수·공식이 파일마다 흩어지지 않게 여기서 한 번만 계산한다.
+export function haversineKm(lat1, lon1, lat2, lon2) {
   const toRad = (deg) => (deg * Math.PI) / 180
   const dLat = toRad(lat2 - lat1)
   const dLon = toRad(lon2 - lon1)
