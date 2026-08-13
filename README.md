@@ -4,7 +4,7 @@
 전환한 Vue 3 프로젝트다. Options API 연습부터 Composition API, Vue Router, Pinia, 외부 API
 연동, 지도, 알림, 기록 관리까지 SKALA Day 2~4 과제를 순서대로 쌓아 올린 결과물이다.
 
-- **배포 주소**: [https://temporary-express-azure-l1slvx3.vercel.app](https://temporary-express-azure-l1slvx3.vercel.app)
+- **배포 주소**: [https://skala-vue-tawny-beta.vercel.app/](https://skala-vue-tawny-beta.vercel.app/)
 - **개발 전체 기록**: [markdown/README\_전체개발기록.md](markdown/README_전체개발기록.md) — 6단계 전체 요구사항·설계 판단·버그 수정·검증 방법을 시간순으로 정리한 원본 문서(이 README는 그 기록을 최종 제출용으로 요약·재구성한 것)
 - **깃허브 주소**: [https://github.com/sendtoyj00/skala-vue](https://github.com/sendtoyj00/skala-vue)
 
