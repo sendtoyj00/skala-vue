@@ -1,83 +1,99 @@
 <script setup>
-// 지도에서 경로 보기(F-34). Leaflet + OpenStreetMap 타일(무료, 키 불필요)을 쓴다 —
-// 이번 과제 범위엔 지도 SaaS(Google Maps 등) API 키 발급이 없어 오픈소스 타일로 대체한다.
-// 마커 아이콘은 기본 이미지 에셋 대신 divIcon(이모지)을 써서 Vite 번들링 시 흔히 겪는
-// leaflet 기본 마커 경로 깨짐 문제를 원천 회피한다.
+// 지도에서 경로 보기(F-34). 카카오맵 JS SDK로 렌더링한다(api/kakaoMapApi.js가 SDK 로더를
+// 소유) — 경로 자체가 카카오 장소 검색으로 찾은 실제 위치를 가리키므로, 그 위치를 다시
+// OpenStreetMap 같은 다른 지도에 옮겨 그리지 않고 카카오맵 그대로 보여준다.
 import { ref, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
-import L from 'leaflet'
-import 'leaflet/dist/leaflet.css'
+import { loadKakaoMaps } from '@/api/kakaoMapApi'
 
 const props = defineProps({
   center: { type: Object, required: true }, // {lat, lon}
   routes: { type: Array, required: true },
   selectedRouteId: { type: String, default: null },
+  // 'live'(카카오 실제 장소 기반) | 'fallback'(합성 루프) — useWalkRoutes.js의 placesStatus.
+  placesStatus: { type: String, default: 'fallback' },
 })
 
 const mapEl = ref(null)
+const loadError = ref(null)
 let map = null
-let layerGroup = null
+let overlays = []
 
-// 팔레트 리뉴얼(base.css)과 동일한 값으로 맞춘다 — Leaflet은 CSS 변수를 못 읽어 직접 값을 쓴다.
-// base.css의 4색 스케일(--gr-700/--pk-700/--sk-700)과 정확히 같은 hex를 쓴다.
+// 팔레트(base.css)와 같은 값으로 맞춘다 — 카카오맵 SDK는 CSS 변수를 못 읽어 직접 hex를 쓴다.
 const ROUTE_COLOR = {
   relax: '#5a8730', // --gr-700
   active: '#a6486e', // --pk-700
   easy: '#26718c', // --sk-700
 }
 
-function emojiIcon(emoji) {
-  return L.divIcon({
-    html: `<span style="font-size:20px;line-height:1">${emoji}</span>`,
-    className: 'walssi-emoji-marker',
-    iconSize: [24, 24],
-    iconAnchor: [12, 12],
-  })
+function clearOverlays() {
+  overlays.forEach((o) => o.setMap(null))
+  overlays = []
 }
 
-function render() {
+function render(kakao) {
   if (!map) return
-  layerGroup.clearLayers()
+  clearOverlays()
 
   for (const route of props.routes) {
     const isSelected = route.id === props.selectedRouteId
-    const latlngs = route.path.map((p) => [p.lat, p.lon])
-    L.polyline(latlngs, {
-      color: ROUTE_COLOR[route.type] ?? '#8bc24d',
-      weight: isSelected ? 5 : 2,
-      opacity: isSelected ? 0.95 : 0.35,
-    }).addTo(layerGroup)
+    const path = route.path.map((p) => new kakao.maps.LatLng(p.lat, p.lon))
+    const line = new kakao.maps.Polyline({
+      path,
+      strokeWeight: isSelected ? 5 : 2,
+      strokeColor: ROUTE_COLOR[route.type] ?? '#8bc24d',
+      strokeOpacity: isSelected ? 0.95 : 0.35,
+      strokeStyle: 'solid',
+    })
+    line.setMap(map)
+    overlays.push(line)
   }
 
-  L.marker([props.center.lat, props.center.lon], { icon: emojiIcon('🏠') })
-    .bindTooltip('출발/도착', { permanent: false })
-    .addTo(layerGroup)
+  const home = new kakao.maps.CustomOverlay({
+    position: new kakao.maps.LatLng(props.center.lat, props.center.lon),
+    content: '<span class="walssi-emoji-marker">🏠</span>',
+    yAnchor: 0.5,
+  })
+  home.setMap(map)
+  overlays.push(home)
 
-  map.setView([props.center.lat, props.center.lon], 16)
+  map.setCenter(new kakao.maps.LatLng(props.center.lat, props.center.lon))
 }
 
 onMounted(async () => {
   await nextTick()
-  map = L.map(mapEl.value, { attributionControl: true }).setView([props.center.lat, props.center.lon], 16)
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    attribution: '&copy; OpenStreetMap contributors',
-  }).addTo(map)
-  layerGroup = L.layerGroup().addTo(map)
-  render()
+  try {
+    const kakao = await loadKakaoMaps()
+    map = new kakao.maps.Map(mapEl.value, {
+      center: new kakao.maps.LatLng(props.center.lat, props.center.lon),
+      level: 5,
+    })
+    render(kakao)
+    watch(
+      () => [props.routes, props.selectedRouteId, props.center],
+      () => render(kakao),
+      { deep: true },
+    )
+  } catch (err) {
+    loadError.value = err.message
+  }
 })
 
-watch(() => [props.routes, props.selectedRouteId, props.center], render, { deep: true })
-
 onBeforeUnmount(() => {
-  map?.remove()
+  clearOverlays()
   map = null
 })
 </script>
 
 <template>
   <div class="route-map-wrap">
-    <div ref="mapEl" class="route-map" role="img" aria-label="선택된 산책 경로가 표시된 지도"></div>
-    <p class="map-note">
+    <div v-if="loadError" class="map-error">
+      🗺️ 카카오맵을 불러오지 못했어요. ({{ loadError }})
+    </div>
+    <div v-else ref="mapEl" class="route-map" role="img" aria-label="선택된 산책 경로가 표시된 카카오맵"></div>
+    <p v-if="placesStatus === 'live'" class="map-note">
+      🐾 카카오맵에서 실제로 찾은 주변 장소를 기준으로 한 왕복 경로입니다. 실제 보행로와는 다를 수 있어요.
+    </p>
+    <p v-else class="map-note">
       🐾 실제 도로망을 반영한 경로가 아니라 현재 위치를 중심으로 합성한 미리보기 루프입니다.
     </p>
   </div>
@@ -94,14 +110,26 @@ onBeforeUnmount(() => {
   border: 1px solid var(--color-border);
   overflow: hidden;
 }
+.map-error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 260px;
+  padding: var(--space-3);
+  text-align: center;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  background: var(--color-surface-sunken);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+}
 .map-note {
   margin: var(--space-1) 0 0;
   font-size: var(--font-size-xs);
   color: var(--color-text-muted);
 }
 :global(.walssi-emoji-marker) {
-  background: transparent;
-  border: none;
-  text-align: center;
+  font-size: 20px;
+  line-height: 1;
 }
 </style>

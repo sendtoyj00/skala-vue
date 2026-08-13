@@ -38,6 +38,50 @@ watch([searchQuery, statusQuery], ([newSearch, newStatus]) => {
 })
 onBeforeUnmount(() => clearTimeout(debounceTimer))
 
+// 헤더 상시 검색(NavSearch)은 입력창이 하나뿐이라 "도시명"과 "날씨 상태"를 구분해 받지 않고
+// 항상 route.query.search로만 보낸다. 그걸 그대로 도시 검색 칸에 꽂으면 "흐림"처럼 날씨 상태를
+// 쳤을 때도 "검색 중인 도시: 흐림"이라고 표시돼 칸이 틀려 보인다 — 실제로 어느 도시명과도
+// 안 맞고 날씨 상태로만 맞으면 날씨 상태 검색 칸으로 옮겨 담는다.
+function reclassifyIntoCorrectBox(term) {
+  if (!term || weatherStore.cities.length === 0) return
+  const cityMatches = weatherStore.cities.some((c) => c.name.includes(term))
+  const weatherMatches = weatherStore.cities.some((c) => c.status.includes(term))
+  if (!cityMatches && weatherMatches) {
+    searchQuery.value = ''
+    statusQuery.value = term
+  }
+}
+
+// 도시 목록이 아직 없을 때(예: 이 화면에 처음 진입) 들어온 초기 검색어는 로딩이 끝난 뒤
+// 한 번 재분류한다. cities가 이미 로드돼 있으면(다른 화면에서 먼저 불러온 뒤 재방문한
+// 경우) listStatus가 이미 'success'라 아래 watch는 전이(transition)가 없어 안 돈다 —
+// 그 경우를 위해 지금 즉시 한 번 더 시도한다.
+reclassifyIntoCorrectBox(searchQuery.value.trim())
+watch(
+  () => weatherStore.listStatus,
+  (status) => {
+    if (status === 'success') reclassifyIntoCorrectBox(searchQuery.value.trim())
+  },
+)
+
+// NavSearch는 이미 /weather에 있을 때도 같은 route를 push한다 — 컴포넌트가 재사용돼 setup이
+// 다시 안 돌아서, 위 초기값 읽기만으로는 두 번째 검색이 반영되지 않는다. route.query가
+// 로컬 ref와 달라졌을 때만(= 외부에서 온 변경일 때만) 되읽어 온다 — 위 debounce가 만든 동일
+// 값 replace는 ref가 이미 같은 값이라 watch가 다시 안 돈다(루프 없음). search·status 두
+// 쿼리를 한 watch로 같이 처리한다 — 따로 두면 reclassify가 옮겨 둔 값을 status 쪽 watch가
+// "route.query.status는 그대로 undefined니까 비워야지"라며 같은 틱에 되돌려버린다.
+watch(
+  () => [route.query.search, route.query.status],
+  ([newSearch, newStatus]) => {
+    const incomingSearch = typeof newSearch === 'string' ? newSearch : ''
+    const incomingStatus = typeof newStatus === 'string' ? newStatus : ''
+    const searchChanged = incomingSearch !== searchQuery.value
+    if (searchChanged) searchQuery.value = incomingSearch
+    if (incomingStatus !== statusQuery.value) statusQuery.value = incomingStatus
+    if (searchChanged) reclassifyIntoCorrectBox(incomingSearch.trim())
+  },
+)
+
 // [정렬 기준 변경] 이전에는 위험 지역이 상단에 오도록 정렬했다(design_architecture.md 3.1
 // 원칙 5). 이번 요청은 "나열 순서 가까운 위치 순"을 명시했으므로 현재 위치(geo.coords, GPS
 // 허용 전에는 mock 서울시청 좌표)에서 가까운 도시 순으로 바꾼다 — 위험 배지(⚠ 위험)는 카드에

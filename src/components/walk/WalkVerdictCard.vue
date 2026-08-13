@@ -3,6 +3,9 @@
 // verdict는 통째로 받는다 — level/maxMinutes/reasons가 함께 움직이는 하나의 결과라
 // 분해해서 넘기면 서로 어긋난 조합이 타입상 가능해진다(vue_architecture.md 7.2).
 import { getWalkAdvice } from '@/domain/walkRules'
+import { useTemperature } from '@/composables/useTemperature'
+
+const { formatTemp, unitSymbol } = useTemperature()
 
 const props = defineProps({
   verdict: {
@@ -79,11 +82,11 @@ const LEVEL_LABEL = {
     <dl class="basis-grid">
       <div class="basis-item">
         <dt>{{ groundTempIsEstimated ? '추정 지면' : '지면(실측)' }}</dt>
-        <dd class="metric">{{ groundTempCelsius }}℃</dd>
+        <dd class="metric">{{ formatTemp(groundTempCelsius) }}{{ unitSymbol }}</dd>
       </div>
       <div class="basis-item">
         <dt>기온</dt>
-        <dd class="metric">{{ airTempCelsius }}℃</dd>
+        <dd class="metric">{{ formatTemp(airTempCelsius) }}{{ unitSymbol }}</dd>
       </div>
       <div class="basis-item">
         <dt>습도</dt>

@@ -60,10 +60,11 @@ defineProps({
 /* 투명 검색창 — 카드 자체가 이미 글래스라, 입력창까지 불투명한 흰 박스로 남아있으면 카드
    안에 또 다른 카드가 떠 있는 것처럼 보였다. 입력창도 같은 글래스 톤으로 맞춘다. */
 .search-inner .search-input {
-  background: rgba(255, 255, 255, 0.35);
+  background: var(--glass-bg);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-full);
   padding: var(--space-2) var(--space-4);
+  color: var(--color-text);
   backdrop-filter: blur(var(--glass-blur)) saturate(140%);
   -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%);
   transition:
@@ -75,7 +76,7 @@ defineProps({
 }
 .search-inner .search-input:focus {
   outline: none;
-  background: rgba(255, 255, 255, 0.55);
+  background: var(--color-surface);
   border-color: var(--color-primary);
 }
 .search-hint {

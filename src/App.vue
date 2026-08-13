@@ -51,7 +51,7 @@ watchEffect(() => {
 
 const NAV_ITEMS = [
   { to: '/', icon: 'paw', label: '오늘 산책' },
-  { to: '/dogs', icon: 'dog', label: '우리 아이들' },
+  { to: '/dogs', icon: 'dog', label: '댕댕이들' },
   { to: '/weather', icon: 'cloud', label: '동네 날씨' },
   { to: '/weather/alerts', icon: 'alert', label: '산책 주의보' },
   { to: '/walks', icon: 'book', label: '산책 다이어리' },

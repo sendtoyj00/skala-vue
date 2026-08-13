@@ -2,6 +2,7 @@
 import { computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import WeatherBadge from '../components/weather/WeatherBadge.vue'
+import HourlyForecastFlow from '../components/weather/HourlyForecastFlow.vue'
 import WeatherCardSkeleton from '../components/common/WeatherCardSkeleton.vue'
 import ErrorState from '../components/common/ErrorState.vue'
 import { useWeatherStore } from '@/stores/weatherStore'
@@ -26,9 +27,16 @@ watch(
   cityData,
   (city) => {
     if (city?.lat != null && city?.lon != null) weatherStore.loadAirQuality(city.id)
+    // 하루 시간대별 흐름(F-11/F-26과 동일한 3시간 간격 예보를 재사용). cityData가 바뀔 때마다
+    // (다른 도시 상세로 이동) 다시 조회한다 — id만 있으면 되므로 lat/lon 확보를 기다릴 필요는 없다.
+    if (city?.id) weatherStore.loadForecast(city.id)
   },
   { immediate: true },
 )
+
+// 오늘 하루 흐름은 지금부터 24시간(3시간 간격 8개)만 본다 — useWalkVerdict.js의
+// UPCOMING_WINDOW_COUNT와 같은 관례를 따른다.
+const todayFlow = computed(() => weatherStore.forecast.slice(0, 8))
 </script>
 
 <template>
@@ -53,15 +61,28 @@ watch(
         <p class="temp-value metric">{{ formatTemp(cityData.temp) }}{{ unitSymbol }}</p>
 
         <div class="info-card">
-          <div class="info-row"><span class="info-label">습도</span><span class="metric">{{ cityData.humidity }}%</span></div>
-          <div class="info-row"><span class="info-label">풍속</span><span class="metric">{{ cityData.windSpeed }}m/s</span></div>
+          <div class="info-row">
+            <span class="info-label">💧 습도</span>
+            <span class="metric">{{ cityData.humidity }}%</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">💨 풍속</span>
+            <span class="metric">{{ cityData.windSpeed }}m/s</span>
+          </div>
           <div v-if="weatherStore.airQuality" class="info-row">
-            <span class="info-label">대기질(사람 기준 AQI)</span>
+            <span class="info-label">🌫️ 대기질(사람 기준 AQI)</span>
             <span class="metric">{{ weatherStore.airQuality.aqi }}단계 · PM2.5 {{ weatherStore.airQuality.pm2_5 }}㎍/㎥</span>
           </div>
         </div>
         <p v-if="weatherStore.airQuality" class="aqi-note">
           🐾 개 기준 등급 환산 기준은 아직 정해지지 않았습니다(사람 기준 수치입니다).
+        </p>
+
+        <h4 class="section-title">🕐 오늘 시간대별 날씨 흐름</h4>
+        <HourlyForecastFlow v-if="weatherStore.forecastStatus === 'success' && todayFlow.length > 0" :entries="todayFlow" />
+        <WeatherCardSkeleton v-else-if="weatherStore.forecastStatus === 'loading'" :count="1" />
+        <p v-else-if="weatherStore.forecastStatus === 'error'" class="forecast-error">
+          시간대별 예보를 불러오지 못했어요. 현재 날씨 정보는 그대로 유효합니다.
         </p>
       </template>
       <div v-else class="not-found">
@@ -119,7 +140,11 @@ watch(
 .info-row {
   display: flex;
   justify-content: space-between;
-  padding: var(--space-1) 0;
+  align-items: center;
+  padding: var(--space-2) 0;
+}
+.info-row + .info-row {
+  border-top: 1px solid var(--color-border);
 }
 .info-label {
   color: var(--color-text-muted);
@@ -132,5 +157,15 @@ watch(
   color: var(--color-text-muted);
   font-size: var(--font-size-xs);
   margin: 0;
+}
+.section-title {
+  margin: var(--space-5) 0 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+}
+.forecast-error {
+  margin: var(--space-2) 0 0;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
 }
 </style>

@@ -5,6 +5,9 @@
 // 화면 문구가 어긋난 과거 실패(weatherRules.js vs 화면 문구)가 재현된다.
 import { computed } from 'vue'
 import { GROUND_TEMP_CAUTION, GROUND_TEMP_UNSAFE } from '@/domain/walkRules'
+import { useTemperature } from '@/composables/useTemperature'
+
+const { formatTemp, unitSymbol } = useTemperature()
 
 const props = defineProps({
   groundTempCelsius: {
@@ -32,7 +35,7 @@ const severity = computed(() => {
 })
 
 const diffLabel = computed(() => {
-  const diff = Math.round((props.groundTempCelsius - props.airTempCelsius) * 10) / 10
+  const diff = Math.round((formatTemp(props.groundTempCelsius) - formatTemp(props.airTempCelsius)) * 10) / 10
   return diff >= 0 ? `+${diff}` : `${diff}`
 })
 
@@ -55,20 +58,20 @@ const unsafePercent = ((GROUND_TEMP_UNSAFE - GAUGE_MIN) / (gaugeMax - GAUGE_MIN)
       <span class="paw-icon" aria-hidden="true">🐾</span>
       <span class="label">지면 온도</span>
       <span class="estimate-badge">{{ isEstimated ? '추정' : '실측' }}</span>
-      <span class="value metric">{{ groundTempCelsius }}℃</span>
+      <span class="value metric">{{ formatTemp(groundTempCelsius) }}{{ unitSymbol }}</span>
     </div>
 
     <div
       class="gauge-track"
       role="img"
-      :aria-label="`계기판: 20℃부터 ${gaugeMax}℃까지 중 현재 지면온도 ${groundTempCelsius}℃`"
+      :aria-label="`계기판: ${formatTemp(GAUGE_MIN)}${unitSymbol}부터 ${formatTemp(gaugeMax)}${unitSymbol}까지 중 현재 지면온도 ${formatTemp(groundTempCelsius)}${unitSymbol}`"
     >
       <span class="gauge-tick" :style="{ left: `${cautionPercent}%` }" aria-hidden="true"></span>
       <span class="gauge-tick" :style="{ left: `${unsafePercent}%` }" aria-hidden="true"></span>
       <span class="gauge-marker" :style="{ left: `${gaugePercent}%` }" aria-hidden="true"></span>
     </div>
 
-    <span class="vs metric">기온 {{ airTempCelsius }}℃ 대비 {{ diffLabel }}</span>
+    <span class="vs metric">기온 {{ formatTemp(airTempCelsius) }}{{ unitSymbol }} 대비 {{ diffLabel }}</span>
   </div>
   <p v-if="basis" class="basis-note">{{ basis }}</p>
 </template>

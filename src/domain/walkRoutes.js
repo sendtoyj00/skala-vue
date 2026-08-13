@@ -1,10 +1,16 @@
 // 산책 경로 3종(F-33) 생성 로직. Vue를 모르는 순수 함수만 둔다(walkRules.js와 같은 원칙).
 //
-// [범위 한계 — 명시적으로 [결정 필요]로 남김] 실제 도로망을 따라가는 경로(정식 라우팅 API,
-// 예: OSRM/Google Directions)는 이 과제 범위의 백엔드·키 발급 없이는 연동할 수 없다. 대신
-// 현재 위치를 중심으로 한 폐곡선(출발=도착) 루프를 좌표 오프셋으로 합성해, "경로가 지도 위에
-// 어떻게 보이는가"라는 화면 요구사항(지도에서 경로 보기)을 절 단위로 만족시킨다. 실제
-// 보행로를 반영하지 않는다는 한계는 README에 그대로 남긴다.
+// buildRoutesFromPlaces()가 기본 경로다 — 카카오맵 장소 검색(api/kakaoMapApi.js)으로 찾은
+// 실제 주변 공원·산책로를 코스 3종에 배정한다(진짜 위치·이름·주소). 걸어서 실제 도로망을
+// 따라가는 턴바이턴 경로(정식 보행자 라우팅 API)까지는 이 프로젝트 범위의 백엔드 없이 낼 수
+// 없어, 카카오맵 딥링크(kakaoMapUrl)로 "실제 카카오맵 길찾기"로 넘겨준다(WalkRouteCard.vue).
+//
+// generateWalkRoutes()는 그 이전의 합성 폴백이다 — 카카오 SDK 로드 실패·API 키 미설정·검색
+// 결과 0건일 때만 쓰인다(useWalkRoutes.js). 현재 위치를 중심으로 한 폐곡선 루프를 좌표
+// 오프셋으로 합성해, 실제 장소를 못 찾아도 "경로가 지도 위에 보인다"는 화면 요구사항만은
+// 계속 만족시킨다. 실제 보행로를 반영하지 않는다는 한계는 README에 남긴다.
+import { haversineKm } from './groundTemp'
+
 const EARTH_RADIUS_KM = 6371
 
 // center에서 bearing(도, 0=북) 방향으로 distanceKm만큼 떨어진 좌표.
@@ -124,3 +130,52 @@ export function generateWalkRoutes({ center, verdict, groundTempIsCaution }) {
 }
 
 export const SHADE_LABEL = { high: '그늘 많음', medium: '그늘 보통', low: '그늘 적음' }
+
+// places: api/kakaoMapApi.js가 반환하는, center에서 가까운 순으로 정렬된 실제 장소 목록.
+// 가까운 장소일수록 짧은 코스(이지)에, 먼 장소일수록 긴 코스(액티브)에 배정해 기존
+// ROUTE_PROFILES의 거리 성격(이지<릴렉스<액티브)을 실제 장소 배치로 재현한다. 그늘 정도는
+// 카카오 API가 제공하지 않는 값이라 코스 유형별 근사치를 그대로 쓴다(추정치임을 숨기지 않기
+// 위해 WalkRouteCard.vue에서 "실제 장소" 정보(placeName/placeAddress)를 함께 노출한다).
+const PLACE_SLOTS = [
+  { type: 'easy', name: '이지 코스', icon: '🐾', shadeLevel: 'medium' },
+  { type: 'relax', name: '릴렉스 코스', icon: '🌿', shadeLevel: 'high' },
+  { type: 'active', name: '액티브 코스', icon: '🏃', shadeLevel: 'low' },
+]
+
+// center: {lat, lon} · verdict: assessWalk() 결과 · groundTempIsCaution: boolean
+// places가 3개 미만이면 그 수만큼만 코스를 만든다(부분 실패 원칙 — 있는 만큼은 진짜로 보여준다).
+export function buildRoutesFromPlaces({ places, center, verdict, groundTempIsCaution }) {
+  const recommendedType = RECOMMEND_BY_LEVEL[verdict.level] ?? 'relax'
+
+  return PLACE_SLOTS.map((slot, i) => ({ slot, place: places[i] }))
+    .filter(({ place }) => place != null)
+    .map(({ slot, place }) => {
+      const oneWayKm = haversineKm(center.lat, center.lon, place.lat, place.lon)
+      const distanceKm = Math.round(oneWayKm * 2 * 10) / 10 // 왕복(출발지 ↔ 실제 장소)
+      const estimatedMinutesRaw = Math.round((distanceKm / WALK_SPEED_KMH) * 60)
+      const exceedsVerdict = verdict.maxMinutes > 0 && estimatedMinutesRaw > verdict.maxMinutes
+
+      const reasons = [`${place.category || '실제 산책 명소'} · ${place.address}`]
+      if (slot.type === recommendedType) {
+        const extra = extraReason({ verdict, groundTempIsCaution })
+        if (extra) reasons.push(extra)
+      }
+
+      return {
+        id: `route_${slot.type}_${place.id}`,
+        type: slot.type,
+        name: `${place.name} 왕복`,
+        icon: slot.icon,
+        distanceKm,
+        estimatedMinutes: estimatedMinutesRaw,
+        shadeLevel: slot.shadeLevel,
+        isRecommended: slot.type === recommendedType,
+        exceedsVerdict,
+        reasons,
+        placeName: place.name,
+        placeAddress: place.address,
+        kakaoMapUrl: `https://map.kakao.com/link/to/${encodeURIComponent(place.name)},${place.lat},${place.lon}`,
+        path: [center, { lat: place.lat, lon: place.lon }, center],
+      }
+    })
+}

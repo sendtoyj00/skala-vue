@@ -44,6 +44,14 @@
   --or-700: #c96f20;
   --or-800: #8f4d16;
 
+  /* Red — 산책 "위험(unsafe)" 전용. good→caution→limited→unsafe 4단계 사다리를 초록→노랑→
+     주황→빨강으로 완성하기 위한 색상이다(walk-unsafe는 or 계열과 구분되는 붉은 톤이 필요).
+     500은 기존 라이트 모드 unsafe 하드코딩 값(#e98272)과 동일하게 맞춰 시각 변화가 없게 한다. */
+  --rd-100: #ffece9;
+  --rd-300: #ffb4a6;
+  --rd-500: #e98272;
+  --rd-700: #b8503c;
+
   /* --------------------------------------------------------------------------
      Neutral
      색상보다 "공간"이 먼저 보이도록 무채색을 적극 사용
@@ -106,7 +114,7 @@
   --color-walk-limited: #f3a85f;
   --color-walk-limited-surface: #fff1e3;
 
-  --color-walk-unsafe: #e98272;
+  --color-walk-unsafe: var(--rd-500);
   --color-walk-unsafe-surface: #fff0ed;
 
   --color-on-walk: var(--ink);
@@ -331,11 +339,14 @@
     --color-walk-caution: var(--yl-300);
     --color-walk-caution-surface: #393018;
 
-    --color-walk-limited: var(--sk-300);
-    --color-walk-limited-surface: #1d333a;
+    /* good(초록)→caution(노랑)→limited(주황)→unsafe(빨강) 경고 사다리를 라이트 모드와
+       동일한 색상군으로 유지한다 — 이전엔 limited가 sk(하늘색), unsafe가 or(주황)이라
+       "제한"이 "위험"보다 더 튀어 보이고 파랑이 경고 사다리에 섞여 있었다. */
+    --color-walk-limited: var(--or-300);
+    --color-walk-limited-surface: #3a2c18;
 
-    --color-walk-unsafe: var(--or-300);
-    --color-walk-unsafe-surface: #392d20;
+    --color-walk-unsafe: var(--rd-300);
+    --color-walk-unsafe-surface: #3a1c17;
 
     --color-on-walk: #182022;
 
@@ -350,6 +361,28 @@
 
     --shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.25);
     --shadow-md: 0 16px 40px rgba(0, 0, 0, 0.35);
+  }
+
+  /* data-weather 무드 블록(:root[data-weather='...'])이 :root보다 명시도가 높아
+     다크 모드 값을 덮어써 밝은 표면 위에 밝은 글자가 겹치는 문제가 있었다.
+     동일한 명시도로 다크 모드 쪽을 더 뒤에 선언해 구조적 색상만 다시 다크로 고정한다. */
+  :root[data-weather] {
+    --color-canvas: #15191b;
+    --color-surface-sunken: #252d30;
+
+    --color-border: #303a3e;
+    --color-border-strong: #3c484d;
+
+    --color-text-muted: #9caeb3;
+
+    --color-primary-surface: #1d333a;
+
+    /* 사이드바도 같은 이유로 무드별 밝은 그라디언트가 그대로 남아있었다 — 메뉴는 날씨
+       무드와 무관하게 다크 모드에서는 항상 어둡게 고정한다. */
+    --sidebar-bg: linear-gradient(180deg, #233c43 0%, #1c3036 100%);
+    --sidebar-fg: #e7f4f6;
+    --sidebar-fg-muted: #a9c0c5;
+    --sidebar-active-bg: rgba(255, 255, 255, 0.1);
   }
 }
 

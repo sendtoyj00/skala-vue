@@ -30,7 +30,7 @@ const dogStore = useDogStore()
 
 const { activeDog, myCityWeather, coords, geo, groundTemp, verdict, airQuality, forecastStatus, forecastWindows, bestWindowRanges, nextAvailableTime, nextGoodWindowAt } = useWalkVerdict()
 
-const { routes, selectedRouteId, selectedRoute, selectRoute } = useWalkRoutes(coords, verdict, groundTemp)
+const { routes, selectedRouteId, selectedRoute, selectRoute, placesStatus } = useWalkRoutes(coords, verdict, groundTemp)
 
 // P2 — 판정 근거. 접어두더라도 접혀 있다는 표시는 남긴다. 감추지 않는다(design_architecture.md 2.4).
 const REASON_LABELS = {
@@ -64,7 +64,7 @@ function breedName(dog) {
         </svg>
       </span>
       <h1 class="onboarding-title">아직 등록된 반려견이 없어요</h1>
-      <p class="onboarding-desc">견종·연령·체중만 알려주시면 우리 아이 기준으로 지금 산책해도 되는지 바로 알려드려요.</p>
+      <p class="onboarding-desc">견종·연령·체중만 알려주시면 강아지 기준으로 지금 산책해도 되는지 바로 알려드려요.</p>
       <RouterLink to="/dogs" class="onboarding-cta">반려견 등록하고 판정 시작하기</RouterLink>
     </div>
 
@@ -119,7 +119,7 @@ function breedName(dog) {
           <p v-else-if="forecastStatus === 'error'" class="forecast-error">예보를 불러오지 못했어요. 지금 판정은 그대로 유효합니다.</p>
 
           <!-- 산책 경로 3종 + 지도(F-33·F-34) -->
-          <WalkRouteList v-if="routes.length > 0 && coords" :routes="routes" :selected-route-id="selectedRouteId" :center="coords" @select="selectRoute" />
+          <WalkRouteList v-if="routes.length > 0 && coords" :routes="routes" :selected-route-id="selectedRouteId" :center="coords" :places-status="placesStatus" @select="selectRoute" />
         </div>
 
         <aside class="dash-side">

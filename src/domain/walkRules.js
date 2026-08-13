@@ -130,7 +130,16 @@ export function getWalkAdvice(verdict) {
 // (README 3단계 참조)를 반복하지 않는다.
 // airQuality가 주어질 때만 5번째 축(대기질)을 추가한다 — 로드 전·실패 시엔 조용히 4개만
 // 반환한다(design_architecture.md 6.4 부분 실패 원칙).
-export function getRiskFactors({ weather, groundTempCelsius, airQuality }) {
+// formatTemp/unitSymbol: 표시 단위 변환 훅(기본값은 섭씨 그대로) — 판정 임계값 비교는
+// 항상 groundTempCelsius/weather.temp 원본(섭씨) 기준이며, 이 두 인자는 라벨 문자열에만
+// 쓰인다(useTemperature.js와 같은 원칙: 판정은 섭씨 원본, 표시만 단위를 바꾼다).
+export function getRiskFactors({
+  weather,
+  groundTempCelsius,
+  airQuality,
+  formatTemp = (c) => c,
+  unitSymbol = '℃',
+}) {
   const groundSeverity =
     groundTempCelsius >= GROUND_TEMP_UNSAFE ? 'unsafe' : groundTempCelsius >= GROUND_TEMP_CAUTION ? 'caution' : 'safe'
 
@@ -151,16 +160,16 @@ export function getRiskFactors({ weather, groundTempCelsius, airQuality }) {
       icon: '🐾',
       label: '지면 온도',
       severity: groundSeverity,
-      valueLabel: `${groundTempCelsius}℃`,
-      thresholdLabel: `주의 ${GROUND_TEMP_CAUTION}℃ · 위험 ${GROUND_TEMP_UNSAFE}℃`,
+      valueLabel: `${formatTemp(groundTempCelsius)}${unitSymbol}`,
+      thresholdLabel: `주의 ${formatTemp(GROUND_TEMP_CAUTION)}${unitSymbol} · 위험 ${formatTemp(GROUND_TEMP_UNSAFE)}${unitSymbol}`,
     },
     {
       code: 'HEAT',
       icon: '☀️',
       label: '기온·습도(폭염)',
       severity: heatSeverity,
-      valueLabel: `${weather.temp}℃ · 습도 ${weather.humidity}%`,
-      thresholdLabel: `기온 ${AIR_TEMP_CAUTION}℃ 이상 + 습도 ${HUMID_THRESHOLD}% 이상 시 위험`,
+      valueLabel: `${formatTemp(weather.temp)}${unitSymbol} · 습도 ${weather.humidity}%`,
+      thresholdLabel: `기온 ${formatTemp(AIR_TEMP_CAUTION)}${unitSymbol} 이상 + 습도 ${HUMID_THRESHOLD}% 이상 시 위험`,
     },
     {
       code: 'RAIN_STORM',

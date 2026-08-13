@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 import { getRiskFactors } from '@/domain/walkRules'
+import { useTemperature } from '@/composables/useTemperature'
 
 const props = defineProps({
   weather: { type: Object, required: true }, // {temp, humidity, windSpeed, statusCode, status}
@@ -8,11 +9,15 @@ const props = defineProps({
   airQuality: { type: Object, default: null }, // {aqi, pm2_5, pm10, observedAt} — 로드 전이면 null
 })
 
+const { formatTemp, unitSymbol } = useTemperature()
+
 const factors = computed(() =>
   getRiskFactors({
     weather: props.weather,
     groundTempCelsius: props.groundTempCelsius,
     airQuality: props.airQuality,
+    formatTemp,
+    unitSymbol: unitSymbol.value,
   }),
 )
 

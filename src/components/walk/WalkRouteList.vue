@@ -7,6 +7,7 @@ defineProps({
   routes: { type: Array, required: true },
   selectedRouteId: { type: String, default: null },
   center: { type: Object, required: true }, // {lat, lon}
+  placesStatus: { type: String, default: 'fallback' },
 })
 
 const emit = defineEmits(['select'])
@@ -27,7 +28,13 @@ function toggleMap() {
       </el-button>
     </div>
 
-    <RouteMapView v-if="showMap" :center="center" :routes="routes" :selected-route-id="selectedRouteId" />
+    <RouteMapView
+      v-if="showMap"
+      :center="center"
+      :routes="routes"
+      :selected-route-id="selectedRouteId"
+      :places-status="placesStatus"
+    />
 
     <div class="route-list">
       <WalkRouteCard
