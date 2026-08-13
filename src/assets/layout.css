@@ -5,6 +5,9 @@
    서 있고, 우측 콘텐츠 영역은 카드가 그리드로 넉넉하게 펼쳐진다. */
 
 .app-shell {
+  position: relative;
+  z-index: 1;
+
   display: flex;
 
   min-height: 100vh;

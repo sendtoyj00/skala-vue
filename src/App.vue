@@ -8,6 +8,7 @@ import UnitToggler from './components/weather/UnitToggler.vue'
 import DogSelector from './components/dog/DogSelector.vue'
 import NavSearch from './components/common/NavSearch.vue'
 import NavIcon from './components/common/NavIcon.vue'
+import WeatherEffectLayer from './components/common/WeatherEffectLayer.vue'
 import { useConfigStore } from './stores/configStore'
 import { useDogStore } from './stores/dogStore'
 import { useWalkLogStore } from './stores/walkLogStore'
@@ -60,6 +61,7 @@ const NAV_ITEMS = [
 </script>
 
 <template>
+  <WeatherEffectLayer :mood="weatherMood" />
   <div class="app-shell">
     <aside class="app-sidebar">
       <RouterLink to="/" class="brand">

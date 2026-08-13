@@ -46,10 +46,39 @@ const LEVEL_LABEL = {
   limited: '제한',
   unsafe: '위험',
 }
+
+const DAISIES = Array.from({ length: 7 }, (_, i) => i)
 </script>
 
 <template>
   <div class="walk-verdict-card" :class="`level-${verdict.level}`">
+    <!-- "산책가기 좋은 날" 전용 장식 — 초원에 핀 데이지처럼 은은하게 흩날린다. 다른 레벨의
+         보케 블롭(::before/::after)과 같은 원칙으로 상태 정보를 전달하지 않는 순수 장식이라
+         aria-hidden으로 숨긴다(design_architecture.md 4.2). -->
+    <div v-if="verdict.level === 'good'" class="daisy-field" aria-hidden="true">
+      <svg
+        v-for="i in DAISIES"
+        :key="i"
+        class="daisy"
+        :style="{ '--i': i }"
+        viewBox="0 0 20 20"
+        width="14"
+        height="14"
+      >
+        <g fill="#ffffff" opacity="0.85">
+          <ellipse cx="10" cy="4" rx="2.6" ry="4" />
+          <ellipse cx="10" cy="16" rx="2.6" ry="4" />
+          <ellipse cx="4" cy="10" rx="4" ry="2.6" />
+          <ellipse cx="16" cy="10" rx="4" ry="2.6" />
+          <ellipse cx="5.5" cy="5.5" rx="2.6" ry="4" transform="rotate(45 5.5 5.5)" />
+          <ellipse cx="14.5" cy="14.5" rx="2.6" ry="4" transform="rotate(45 14.5 14.5)" />
+          <ellipse cx="5.5" cy="14.5" rx="2.6" ry="4" transform="rotate(-45 5.5 14.5)" />
+          <ellipse cx="14.5" cy="5.5" rx="2.6" ry="4" transform="rotate(-45 14.5 5.5)" />
+        </g>
+        <circle cx="10" cy="10" r="2.4" fill="#f2c65c" />
+      </svg>
+    </div>
+
     <div class="level-row">
       <span class="level-chip">
         <svg class="level-chip-icon" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
@@ -150,6 +179,37 @@ const LEVEL_LABEL = {
 .basis-grid {
   position: relative;
   z-index: 1;
+}
+
+/* ── "좋음" 전용 데이지 장식 ─────────────────────────────────────────── */
+
+.daisy-field {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* 카드 진입 즉시 보여야 하므로, 아래에서 솟아올라 사라지는 대신 카드 하단 "잔디" 띠에
+   흩어져 자리 잡은 채로 가볍게 흔들리게 한다(참고 이미지의 초원 데이지 무리). */
+.daisy {
+  position: absolute;
+  top: calc(58% + (var(--i) * 5%));
+  left: calc(4% + (var(--i) * 13%));
+  opacity: 0.9;
+  animation: daisy-sway calc(3.5s + (var(--i) * 0.4s)) ease-in-out infinite;
+  animation-delay: calc(var(--i) * -0.6s);
+}
+
+@keyframes daisy-sway {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-6deg);
+  }
+  50% {
+    transform: translateY(-5px) rotate(6deg);
+  }
 }
 
 .level-row {
