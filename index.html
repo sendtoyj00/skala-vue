@@ -4,7 +4,39 @@
     <meta charset="UTF-8" />
     <link rel="icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SKALA-VUE : 모던 웹 애플리케이션 개발 실습실</title>
+    <title>왈씨 Walssi — 지금, 우리 아이 산책 괜찮을까요</title>
+
+    <!-- 타이포그래피: Pretendard(본문/디스플레이, 한글 가변폭 산세리프) + JetBrains Mono(수치·계측값
+         전용). 온도·분·퍼센트 같은 "측정값"은 고정폭 모노스페이스로 통일해 계측기 느낌을 준다
+         (frontend-design 방향: 화면 전반의 서명 요소). -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      as="style"
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700&display=swap"
+    />
+
+    <!-- Google Ad Placement(adBreak) — 테스트 모드. components/common/AdBreakSlot.vue가 소비한다.
+         지역 날씨 화면에만 노출되고 산책 판정 화면에는 절대 두지 않는다(service_architecture.md 10절).
+         data-adbreak-test="on"은 실제 서비스 전환 전 반드시 제거하고 client id도 실제 값으로 교체한다. -->
+    <script
+      async
+      data-adbreak-test="on"
+      src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=%VITE_ADSENSE_CLIENT_ID%"
+      crossorigin="anonymous"
+    ></script>
+    <script>
+      window.adsbygoogle = window.adsbygoogle || []
+      var adBreak = (adConfig = function (o) {
+        adsbygoogle.push(o)
+      })
+    </script>
   </head>
   <body>
     <div id="app"></div>

@@ -1,40 +1,180 @@
 /* 앱 셸 네비게이션 + 대시보드 계열 화면 공통 레이아웃.
-   과거 exercise.css(실습용 이름)에 서비스 핵심 스타일이 얹혀 있던 것을, 이름을 내용과
-   맞춰 정리했다 (vue_architecture.md 11절). 죽은 규칙(.app-container, .badge 계열,
-   .btn-detail 등 실습 잔재)은 옮기지 않고 폐기했다. */
+   방향: 헤더는 산책로 안내판처럼 상단에 고정되어 항상 손닿는 자리에 있고, 본문은 카드가
+   오솔길처럼 세로로 이어지는 좁은 단일 컬럼을 유지한다 (design_architecture.md 3.2, 7.3). */
 
-.navigation-bar {
+.app-shell {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ── 헤더 ─────────────────────────────────────────────────────────────── */
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: color-mix(in srgb, var(--color-surface) 88%, transparent);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  border-bottom: 1px solid var(--color-border);
+}
+.app-header-inner {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: var(--space-3) var(--space-5);
+  display: flex;
   align-items: center;
   flex-wrap: wrap;
-  background-color: var(--color-surface);
-  padding: var(--space-4);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
-  margin-bottom: var(--space-5);
+  gap: var(--space-4);
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
   gap: var(--space-2);
+  text-decoration: none;
+  color: var(--color-text);
+  flex-shrink: 0;
+}
+.brand-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-md);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  flex-shrink: 0;
+}
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+.brand-name {
+  font-weight: 800;
+  font-size: var(--font-size-md);
+  letter-spacing: var(--tracking-tight);
+}
+.brand-sub {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 3px;
+  border-radius: var(--radius-full);
+  background: var(--color-surface-sunken);
+  border: 1px solid var(--color-border);
 }
 .nav-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   text-decoration: none;
   color: var(--color-text-muted);
-  font-weight: bold;
-  font-size: var(--font-size-base);
-  transition: color 0.2s ease;
+  font-weight: 700;
+  font-size: var(--font-size-sm);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-full);
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
+  white-space: nowrap;
 }
 .nav-item:hover,
 .nav-item:focus-visible {
   color: var(--color-text);
+  background: var(--color-surface);
 }
-.divider {
-  margin: 0 var(--space-4);
-  color: var(--color-border);
+.navigation-bar .router-link-exact-active,
+.nav-links .router-link-exact-active {
+  color: var(--color-on-primary);
+  background: var(--color-primary);
+}
+.nav-links .router-link-exact-active:hover {
+  color: var(--color-on-primary);
+  background: var(--color-primary);
 }
 
-.navigation-bar .router-link-exact-active {
-  color: var(--color-primary);
-  border-bottom: 2px solid var(--color-primary);
-  padding-bottom: 2px;
+/* T1(전역 네비) 옆의 T2/대상 개체 묶음. 셸에 한 번만 두는 DogSelector + UnitToggler
+   (design_architecture.md 3.2). */
+.nav-tools {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-left: auto;
+  flex-wrap: wrap;
+}
+.tools-divider {
+  width: 1px;
+  height: 20px;
+  background: var(--color-border);
+}
+
+@media (max-width: 880px) {
+  .app-header-inner {
+    padding: var(--space-3) var(--space-4);
+  }
+  .nav-links {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+  }
+  .nav-tools {
+    margin-left: 0;
+  }
+}
+
+/* ── 본문 ─────────────────────────────────────────────────────────────── */
+main {
+  flex: 1;
+  width: 100%;
+}
+
+/* ── 푸터 ─────────────────────────────────────────────────────────────── */
+.app-footer {
+  border-top: 1px dashed var(--color-border-strong);
+  margin-top: var(--space-8);
+  padding: var(--space-6) var(--space-4) var(--space-8);
+}
+.footer-inner {
+  max-width: 640px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+.footer-brand {
+  font-weight: 800;
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+  margin-bottom: var(--space-1);
+}
+.footer-disclaimer,
+.footer-source {
+  margin: 0;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+/* 키보드 포커스 표시(design_architecture.md 8.2 — focus-visible 규칙 신설). 브라우저 기본
+   아웃라인 대신 토큰 기반의 일관된 표시를 쓴다. */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
 
 /* 대시보드 계열 화면 공통 폭. max-width + width:100%로 정의해 고정폭 오버플로우를 막는다
@@ -43,6 +183,32 @@
   max-width: 640px;
   width: 100%;
   margin: 0 auto;
+  padding: var(--space-6) var(--space-4) var(--space-4);
+}
+
+/* 화면 최상단 공통 표제부 — 작은 라벨(eyebrow) + 큰 제목. 화면마다 제각각이던 h3/h1을
+   하나의 시각 언어로 통일한다. */
+.page-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-1);
+}
+.page-title {
+  font-size: var(--font-size-xl);
+  font-weight: 800;
+  letter-spacing: var(--tracking-tight);
+  margin: 0 0 var(--space-1);
+}
+.page-desc {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  margin: 0 0 var(--space-5);
 }
 
 /* 요소 선택자는 여기 하나만 예외로 둔다 — 90% 고정폭이 입력창마다 의도치 않은 여백을

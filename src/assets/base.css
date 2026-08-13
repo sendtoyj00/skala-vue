@@ -1,50 +1,63 @@
-/* 디자인 토큰. 색은 역할 이름으로 짓는다(--color-red가 아니라 --color-danger) —
-   임계값이 바뀌어 위험 배정이 달라져도 이름을 다시 지을 필요가 없다.
-   (design_architecture.md 5절) */
+/* ============================================================================
+   왈씨 Walssi — 디자인 토큰
+   방향: "산책로 계측기(trail instrument)". 개가 걷는 지면(흙·점토·이끼)에서 색을 가져오고,
+   측정값은 모노스페이스로 계기판처럼 읽힌다. 색은 역할 이름으로 짓는다(--color-red가 아니라
+   --color-danger) — 임계값이 바뀌어 위험 배정이 달라져도 이름을 다시 지을 필요가 없다.
+   (design_architecture.md 5절)
+   ============================================================================ */
 
 :root {
-  /* color: surface/border/text */
-  --color-surface: #ffffff;
-  --color-surface-sunken: #f8f9fa;
-  --color-border: #dee2e6;
-  --color-text: #2c3e50;
-  --color-text-muted: #5b6472;
+  /* color: surface/border/text — 따뜻한 모래·종이 톤의 캔버스 위에 얹는다(순백/순회색 금지) */
+  --color-canvas: #efeae0;
+  --color-surface: #fffcf6;
+  --color-surface-sunken: #f6f1e6;
+  --color-border: #ddd3bd;
+  --color-border-strong: #c9bc9e;
+  --color-text: #212b22;
+  --color-text-muted: #6d7264;
 
-  /* color: 의미 색 — 위험도(채운 배지)와 표면(연한 칩) 쌍으로 제공 */
-  --color-danger: #d91010;
-  --color-danger-surface: #fdecea;
-  --color-warning: #b35c00;
-  --color-warning-surface: #fdf1e6;
-  --color-safe: #2e7d32;
-  --color-safe-surface: #eaf4eb;
-  --color-info: #0056b3;
-  --color-info-surface: #e6eefb;
+  /* color: 의미 색 — 위험도(채운 배지)와 표면(연한 칩) 쌍으로 제공. 진흙·점토·녹 계열로 통일 */
+  --color-danger: #a3382a;
+  --color-danger-surface: #f6e5e0;
+  --color-warning: #a06519;
+  --color-warning-surface: #f5ecd8;
+  --color-safe: #2f6b4f;
+  --color-safe-surface: #e4efe6;
+  --color-info: #33637d;
+  --color-info-surface: #e3edf1;
 
-  /* color: 강조(주 버튼·활성 네비 등 브랜드 대용) */
-  --color-primary: #2c3e50;
-  --color-primary-surface: #eef1f4;
-  --color-on-primary: #ffffff;
-  --color-on-danger: #ffffff;
+  /* color: 강조(주 버튼·활성 네비 등 브랜드 대용) — 이끼색을 브랜드 축으로 삼는다 */
+  --color-primary: #2f5b46;
+  --color-primary-surface: #e4ede6;
+  --color-on-primary: #fbf8ef;
+  --color-on-danger: #fbf8ef;
 
-  /* color: 산책 단계(F-23) — 날씨 위험과는 다른 축이라 danger/warning/safe를 재사용하지 않는다
-     (design_architecture.md 5.3). 4단계가 단조 증가하는 채도·명도를 갖는다. 1차 값 — 실측 대비비
-     확정 전까지 잠정치(마이그레이션 9단계에서 재검토). */
-  --color-walk-good: #1f6b4a;
-  --color-walk-caution: #8a5a00;
-  --color-walk-limited: #a13d05;
-  --color-walk-unsafe: #96201c;
-  --color-on-walk: #ffffff;
+  /* color: 산책 단계(F-23) — 지면의 상태를 은유한다: 이끼(좋음) → 마른풀(주의) → 마른흙(제한)
+     → 갈라진 붉은흙(위험). danger/warning/safe와 다른 축이라 재사용하지 않는다
+     (design_architecture.md 5.3). 4단계가 단조 증가하는 채도·명도를 갖는다. */
+  --color-walk-good: #2f6b4f;
+  --color-walk-good-surface: #e4efe6;
+  --color-walk-caution: #97691a;
+  --color-walk-caution-surface: #f4ecd7;
+  --color-walk-limited: #a85423;
+  --color-walk-limited-surface: #f5e6d7;
+  --color-walk-unsafe: #93291f;
+  --color-walk-unsafe-surface: #f3ded9;
+  --color-on-walk: #fbf8ef;
 
-  /* typography */
+  /* typography — 본문/디스플레이는 Pretendard, 계측값(온도·분·퍼센트·시각)은 항상 모노스페이스로 */
   --font-sans:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
   --font-size-xs: 12px;
   --font-size-sm: 14px;
   --font-size-base: 16px;
   --font-size-md: 18px;
   --font-size-lg: 20px;
-  --font-size-xl: 24px;
-  --font-size-2xl: 32px;
+  --font-size-xl: 26px;
+  --font-size-2xl: 40px;
+  --tracking-tight: -0.02em;
 
   /* spacing: 4배수 스케일 */
   --space-1: 4px;
@@ -55,47 +68,56 @@
   --space-6: 24px;
   --space-8: 32px;
 
-  /* radius */
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
+  /* radius — 카드류는 넉넉히 둥글리고, 계측값 칩은 완전한 알약형(full)을 쓴다 */
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
   --radius-full: 999px;
 
-  /* shadow: 2종 */
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
-  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.08);
+  /* shadow: 2종. 채도를 낮춘 잉크색 그림자로 회색 대신 브랜드 톤을 살짝 남긴다 */
+  --shadow-sm: 0 2px 10px rgba(33, 43, 34, 0.07);
+  --shadow-md: 0 12px 32px rgba(33, 43, 34, 0.12);
+
+  /* 서명 요소: 등고선 패턴 — 헤더·판정 카드 배경에 반복해서 "산책로 지도" 정체성을 만든다 */
+  --pattern-contour: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='0.5' stroke-width='1'%3E%3Ccircle cx='30' cy='40' r='18'/%3E%3Ccircle cx='30' cy='40' r='34'/%3E%3Ccircle cx='30' cy='40' r='50'/%3E%3Ccircle cx='128' cy='120' r='14'/%3E%3Ccircle cx='128' cy='120' r='28'/%3E%3Ccircle cx='128' cy='120' r='42'/%3E%3C/g%3E%3C/svg%3E");
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-surface: #1c222b;
-    --color-surface-sunken: #242b36;
-    --color-border: #38414f;
-    --color-text: #e7ebf0;
-    --color-text-muted: #a3aebb;
+    --color-canvas: #171b16;
+    --color-surface: #1f251e;
+    --color-surface-sunken: #262c24;
+    --color-border: #3a4136;
+    --color-border-strong: #4a5344;
+    --color-text: #edf0e6;
+    --color-text-muted: #a3ab98;
 
-    --color-danger: #ff6b6b;
-    --color-danger-surface: #3a2023;
-    --color-warning: #e3a458;
-    --color-warning-surface: #3a2f1c;
-    --color-safe: #7cd992;
-    --color-safe-surface: #1e3322;
-    --color-info: #6fa8dc;
-    --color-info-surface: #1e2c3a;
+    --color-danger: #e08b7a;
+    --color-danger-surface: #38251f;
+    --color-warning: #dcab5c;
+    --color-warning-surface: #372c1a;
+    --color-safe: #7fc39e;
+    --color-safe-surface: #1f2f26;
+    --color-info: #86b6c9;
+    --color-info-surface: #1f2c30;
 
-    --color-primary: #e7ebf0;
-    --color-primary-surface: #2a323e;
-    --color-on-primary: #1c222b;
-    --color-on-danger: #1c222b;
+    --color-primary: #8fd3ac;
+    --color-primary-surface: #24352a;
+    --color-on-primary: #14201a;
+    --color-on-danger: #22140f;
 
-    --color-walk-good: #2f8f66;
-    --color-walk-caution: #a3721b;
-    --color-walk-limited: #c14f13;
-    --color-walk-unsafe: #c23a30;
-    --color-on-walk: #ffffff;
+    --color-walk-good: #4a9873;
+    --color-walk-good-surface: #1f3227;
+    --color-walk-caution: #cf9f4f;
+    --color-walk-caution-surface: #362c1a;
+    --color-walk-limited: #d1874f;
+    --color-walk-limited-surface: #3a2a1c;
+    --color-walk-unsafe: #d9776a;
+    --color-walk-unsafe-surface: #3a231f;
+    --color-on-walk: #fbf8ef;
 
-    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.35);
-    --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.45);
+    --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.35);
+    --shadow-md: 0 12px 32px rgba(0, 0, 0, 0.5);
   }
 }
 
@@ -106,10 +128,16 @@
   margin: 0;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   min-height: 100vh;
   color: var(--color-text);
-  background: var(--color-surface-sunken);
+  background: var(--color-canvas);
+  background-image: var(--pattern-contour);
+  background-attachment: fixed;
   transition:
     color 0.2s,
     background-color 0.2s;
@@ -119,4 +147,35 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-sans);
+  letter-spacing: var(--tracking-tight);
+  font-weight: 800;
+}
+
+/* 계측값 전용 유틸리티 — 온도·분·퍼센트·시각 등 "읽어서 판단하는 숫자"에 붙인다.
+   화면 전체의 서명 타이포그래피 규칙: 산문은 Pretendard, 숫자는 항상 모노스페이스. */
+.metric,
+.metric-num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
 }

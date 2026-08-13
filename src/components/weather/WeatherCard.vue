@@ -37,9 +37,9 @@ const { formatTemp, unitSymbol } = useTemperature()
       <span class="status-label">{{ cityItem.status }}</span>
     </div>
 
-    <p class="temp-value">{{ formatTemp(cityItem.temp) }}{{ unitSymbol }}</p>
+    <p class="temp-value metric">{{ formatTemp(cityItem.temp) }}{{ unitSymbol }}</p>
 
-    <div class="card-metrics">
+    <div class="card-metrics metric">
       <span><span class="metric-label">습도</span> {{ cityItem.humidity }}%</span>
       <span><span class="metric-label">바람</span> {{ cityItem.windSpeed }}m/s</span>
     </div>
@@ -52,11 +52,20 @@ const { formatTemp, unitSymbol } = useTemperature()
 .weather-card {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  padding: var(--space-3);
+  padding: var(--space-3) var(--space-4);
   margin-bottom: var(--space-2);
   border-radius: var(--radius-md);
   cursor: pointer;
   position: relative;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    border-color 0.15s ease;
+}
+.weather-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+  border-color: var(--color-border-strong);
 }
 .weather-card.danger {
   border-left: 4px solid var(--color-danger);

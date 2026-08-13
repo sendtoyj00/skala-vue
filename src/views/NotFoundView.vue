@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 
 const goHome = () => {
-  router.push({ name: 'WeatherHome' })
+  router.push({ name: 'WalkHome' })
 }
 </script>
 
@@ -32,7 +32,8 @@ const goHome = () => {
   justify-content: center;
   align-items: center;
   min-height: 80vh;
-  background-color: var(--color-surface-sunken);
+  background-color: var(--color-canvas);
+  padding: var(--space-4);
 }
 
 .not-found-content {
@@ -40,8 +41,9 @@ const goHome = () => {
   background-color: var(--color-surface);
   padding: var(--space-8);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-md);
   border: 1px solid var(--color-border);
+  max-width: 400px;
 }
 
 .error-icon {

@@ -22,7 +22,8 @@ const handleDetailRequest = (cityId) => {
 <template>
   <div class="dashboard-wrapper">
     <BaseDashboardCard>
-      <h3>⚠️ 위험 날씨 경보</h3>
+      <p class="page-eyebrow">Alerts · P1</p>
+      <h3 class="page-title">⚠️ 위험 날씨 경보</h3>
       <p class="alert-desc">폭우 · 강풍({{ DANGER_WIND_SPEED }}m/s 이상) · 폭염({{ DANGER_TEMP }}도 이상) 지역만 모아 보여줍니다.</p>
       <WeatherCardSkeleton v-if="weatherStore.listStatus === 'loading'" />
       <ErrorState

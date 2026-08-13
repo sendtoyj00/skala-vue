@@ -1,7 +1,7 @@
 // 산책 가능 판정. Vue를 모르는 순수 함수이며 견종 이름을 모른다 — 견종→특성 변환은
 // domain/breeds.js(예정)가 담당한다(service_architecture.md 4.4, 조합 폭발 방지).
 // 판정 함수는 이 파일 1곳에만 존재한다(service_architecture.md 4.1).
-import { DANGER_STATUS, DANGER_WIND_SPEED } from './weatherRules'
+import { DANGER_STATUS_CODES, DANGER_WIND_SPEED } from './weatherRules'
 
 // 임계값 출처(service_architecture.md 4.2, 9절 — 상세 근거는 해당 절 참조):
 //
@@ -63,7 +63,7 @@ export function assessWalk({ weather, traits, groundTempCelsius }) {
     reasons.push({ code: 'GROUND_TEMP', threshold: GROUND_TEMP_CAUTION, actual: groundTempCelsius })
   }
 
-  if (weather.status === DANGER_STATUS) {
+  if (DANGER_STATUS_CODES.includes(weather.statusCode)) {
     level = escalate(level, 'unsafe')
     reasons.push({ code: 'RAIN_STORM', threshold: null, actual: weather.status })
   }
@@ -101,4 +101,60 @@ const SAFE_ADVICE = { icon: '🐕', text: '지금 산책하기 좋아요!' }
 export function getWalkAdvice(verdict) {
   if (verdict.reasons.length === 0) return [SAFE_ADVICE]
   return verdict.reasons.map((reason) => ADVICE[reason.code])
+}
+
+// 산책 위험 요소 패널(F-35) 전용 — assessWalk()의 reasons는 "실제로 걸린 조건"만 반환하지만,
+// 이 함수는 4개 축 전부를 항상 반환한다(걸리지 않은 축도 "안전" 상태로 보여줘야 "판정 근거를
+// 투명하게 공개한다"는 요구를 만족한다). 판정 로직을 새로 만들지 않는다 — assessWalk()과 같은
+// 임계값을 그대로 재사용해 화면 문구와 실제 판정이 어긋나는 과거 실패(README 3단계 참조)를
+// 반복하지 않는다.
+export function getRiskFactors({ weather, groundTempCelsius }) {
+  const groundSeverity =
+    groundTempCelsius >= GROUND_TEMP_UNSAFE ? 'unsafe' : groundTempCelsius >= GROUND_TEMP_CAUTION ? 'caution' : 'safe'
+
+  const rainSeverity = DANGER_STATUS_CODES.includes(weather.statusCode) ? 'unsafe' : 'safe'
+
+  const windSeverity = weather.windSpeed >= DANGER_WIND_SPEED ? 'caution' : 'safe'
+
+  const heatSeverity =
+    weather.temp >= AIR_TEMP_CAUTION
+      ? weather.humidity >= HUMID_THRESHOLD
+        ? 'unsafe'
+        : 'caution'
+      : 'safe'
+
+  return [
+    {
+      code: 'GROUND_TEMP',
+      icon: '🐾',
+      label: '지면 온도',
+      severity: groundSeverity,
+      valueLabel: `${groundTempCelsius}℃`,
+      thresholdLabel: `주의 ${GROUND_TEMP_CAUTION}℃ · 위험 ${GROUND_TEMP_UNSAFE}℃`,
+    },
+    {
+      code: 'HEAT',
+      icon: '☀️',
+      label: '기온·습도(폭염)',
+      severity: heatSeverity,
+      valueLabel: `${weather.temp}℃ · 습도 ${weather.humidity}%`,
+      thresholdLabel: `기온 ${AIR_TEMP_CAUTION}℃ 이상 + 습도 ${HUMID_THRESHOLD}% 이상 시 위험`,
+    },
+    {
+      code: 'RAIN_STORM',
+      icon: '🌧️',
+      label: '강수·강설',
+      severity: rainSeverity,
+      valueLabel: weather.status,
+      thresholdLabel: '비/눈/뇌우 시 위험',
+    },
+    {
+      code: 'WIND',
+      icon: '🌪️',
+      label: '풍속',
+      severity: windSeverity,
+      valueLabel: `${weather.windSpeed}m/s`,
+      thresholdLabel: `주의 ${DANGER_WIND_SPEED}m/s 이상`,
+    },
+  ]
 }

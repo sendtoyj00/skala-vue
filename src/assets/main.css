@@ -1,16 +1,19 @@
 @import './base.css';
 
+/* #app은 셸의 마운트 지점일 뿐 폭을 제한하지 않는다 — 헤더가 뷰포트 전폭으로 붙박이도록
+   폭 제한은 .app-header-inner / .dashboard-wrapper 등 셸 내부 요소가 각자 책임진다
+   (design_architecture.md 3.2, 7.3). */
 #app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: var(--space-4);
+  width: 100%;
 }
 
-@media (min-width: 768px) {
-  #app {
-    padding: var(--space-6);
-  }
+/* Element Plus 테마를 왈씨 토큰에 맞춘다 — el-button/el-tag/el-checkbox가 라이브러리 기본
+   파란색 대신 브랜드 이끼색을 쓰도록(WalkRouteList/WalkRouteCard/WalkChecklist에서 사용). */
+:root {
+  --el-color-primary: var(--color-primary);
+  --el-color-primary-light-3: var(--color-walk-good);
+  --el-color-success: var(--color-walk-good);
+  --el-border-radius-base: var(--radius-sm);
+  --el-border-radius-round: var(--radius-full);
+  --el-font-family: var(--font-sans);
 }
-
-/* 스캐폴딩 기본값이던 2열 그리드를 제거했다. 앱 셸이 RouterView 1개인 단일 흐름 레이아웃이므로
-   콘텐츠 성격과 무관하게 화면을 반으로 쪼개던 규칙은 불필요하다 (design_architecture.md 3.2, 7.3). */
